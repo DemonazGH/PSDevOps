@@ -42,7 +42,7 @@ function Stop-EcsDbcBCInstanceServices {
         $missingInServer = $strapiInstances | Where-Object { $_ -notin $actualInstances }
         $extraOnServer   = $actualInstances   | Where-Object { $_ -notin $strapiInstances }
         if ($missingInServer.Count -or $extraOnServer.Count) {
-            Write-Error "Configuration drift detected on '$serverName'!"
+            Write-Host "Configuration drift detected on '$serverName'!"
 
             if ($missingInServer.Count) {
                 $errorMsgIn = "In STRAPI but not on server:`n"
