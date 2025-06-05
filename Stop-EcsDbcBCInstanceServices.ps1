@@ -1,21 +1,10 @@
-<#
-.SYNOPSIS
-Stops Business Central server instance services for an environment.
-
-.DESCRIPTION
-Given the short name of an environment this function retrieves the
-configuration from Strapi, validates that the set of services running on
-each server matches that configuration and stops all running instances
-that share the target database.  It returns a list of the service
-instances that were stopped and throws if any instance fails to stop.
-#>
 function Stop-EcsDbcBCInstanceServices {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][string]$EnvShortName
     )
 
-    # 1) Load environment configuration from Strapi and verify it exists
+    # Load environment configuration from Strapi and verify it exists
     $environment = Get-BCEnvironmentConfig -EnvShortName $EnvShortName
     if (-not $environment) {
         Throw "Environment '$EnvShortName' not found in Strapi."
@@ -45,13 +34,11 @@ function Stop-EcsDbcBCInstanceServices {
           Throw "ERROR: Unable to get services on '$serverName': $_"
         }
 
-        # 2b) Normalize for comparison
-        # Extract just the service instance names from the discovered objects
+        # Normalize for comparisonю Extract just the service instance names from the discovered objects
         $actualInstances = $actualFullNames | ForEach-Object  { $_.Service }
         $strapiInstances = $srv.services
 
-        # 2c) Fail‐fast drift detection
-        # Abort if the set of services differs from what Strapi reports
+        # Fail‐fast drift detection. Abort if the set of services differs from what Strapi reports
         $missingInServer = $strapiInstances | Where-Object { $_ -notin $actualInstances }
         $extraOnServer   = $actualInstances   | Where-Object { $_ -notin $strapiInstances }
         if ($missingInServer.Count -or $extraOnServer.Count) {
@@ -125,7 +112,7 @@ function Stop-EcsDbcBCInstanceServices {
         }
     }
 
-    # 4) Final check
+    # Final check
     # If any services could not be stopped, abort and report them
     if ($failedStops.Count -gt 0) {
         Throw "The following services failed to stop and must be investigated before proceeding with database refresh:`n  " +
@@ -140,3 +127,14 @@ function Stop-EcsDbcBCInstanceServices {
 <## >
 Stop-EcsDbcBCInstanceServices -EnvShortName 'NHFX'
 <##>
+<#
+.SYNOPSIS
+Stops Business Central server instance services for an environment.
+
+.DESCRIPTION
+Given the short name of an environment this function retrieves the
+configuration from Strapi, validates that the set of services running on
+each server matches that configuration and stops all running instances
+that share the target database.  It returns a list of the service
+instances that were stopped and throws if any instance fails to stop.
+#>
