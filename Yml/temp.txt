@@ -1,0 +1,4 @@
+  condition: and(
+    succeeded(), 
+    eq(stageDependencies.GetSOXTagsArray.GetSOXTagsArray.outputs['CollectSOXTagsArray.WasArrayCollected'], 'true')
+    )

@@ -1,0 +1,42 @@
+function Test-Agent-DEV
+{
+[CmdletBinding()]
+$ProdEnvConfig = Get-EnvironmentConfig -EnvironmentType 'PRD' -RelativeFilePath $LiveBCServerConfig
+$UatEnvConfig = Get-EnvironmentConfig -EnvironmentType 'UAT' -RelativeFilePath $LiveBCServerConfig
+$DevEnvConfig = Get-EnvironmentConfig -EnvironmentType 'DEV' -RelativeFilePath $LiveBCServerConfig
+# Write-Host("Testing DEV Connections:")
+$TargetEnvConfig = $DevEnvConfig 
+$ServersWithServicesToRestart = $TargetEnvConfig.ServersWithServicesToRestart
+$HeaderQuery = Get-SDServerSetupGTQuery -TargetDB $TargetEnvConfig.DatabaseName
+$Headers = Invoke-Sqlcmd -Query $HeaderQuery -ServerInstance $TargetEnvConfig.DatabaseServerName
+
+#Write-Host($Headers)
+    foreach ($H in $Headers)
+    {
+        Write-Host($($H.'Server Name'))
+    }
+#Invoke-NAVCodeunit -ServerInstance $TargetEnvConfig.TargetBCServerInstance -CompanyName $TargetEnvConfig.CompanyNameToOperate -CodeunitId 53300 
+# Define the file path
+$FileName = "\$($TargetEnvConfig.Name).txt"
+$FilePath = $SharedFolderPathToStoreConfigPackageFilesIn + $FileName
+
+# Create the directory if it does not exist
+$Directory = [System.IO.Path]::GetDirectoryName($FilePath)
+if (!(Test-Path $Directory)) {
+    New-Item -ItemType Directory -Path $Directory -Force
+}
+
+# Create a dummy file
+New-Item -ItemType File -Path $FilePath -Force | Out-Null
+
+# Check if the file was created
+if (Test-Path $FilePath) {
+    Write-Host "File created successfully at $FilePath"
+} else {
+    Write-Host "File creation failed!"
+}
+$NewVar1 = Get-ValueByKeyJSONWithVariables -JsonFilePath $pipelineStagingVariablesFilePath -KeyName "Key1"
+Write-Host("Variable from JOS $NewVar1")
+$Array1 = Get-ValueByKeyJSONWithVariables -JsonFilePath $pipelineStagingVariablesFilePath -KeyName "Array1"
+Write-Host("Variable from JOS $Array1")
+}

@@ -1,0 +1,137 @@
+[
+    {
+        "Name":"NPRD",
+        "Description":"BC Production environment",
+        "DatabaseServerName": "FRSCBVSQLDYN01P.eu.corp.arrow.com",
+        "DatabaseName":"NAV_PROD_IMPROVISED_aka_uat_copy",
+        "StatusCodeToImportObjectsToThisEnv":"800",
+        "StatusCodeAfterImportObjectsToThisEnv":"900",
+        "TargetBCServerInstance":null,
+        "TargetBCServerName":"FRSCBVSQLDYN01P.eu.corp.arrow.com",
+        "ServersWithServicesToRestart":null,
+        "CompanyNameToOperate":null,
+        "ManagmentPort":null   
+    },
+    {
+        "Name":"NUAT",
+        "Description":"BC UAT environment",
+        "DatabaseServerName":"FRSCBVSQLBC001T.eu.corp.arrow.com",
+        "DatabaseName":"NAV_UAT",
+        "StatusCodeToImportObjectsToThisEnv":"425",
+        "StatusCodeAfterImportObjectsToThisEnv":null,
+        "TargetBCServerInstance":"BC140-Client-RTC", 
+        "TargetBCServerName":"FRSCBVSQLBC001T",
+        "ServersWithServicesToRestart": [
+                    {
+                        "ServerName": "FRSCBVSQLBC001T.eu.corp.arrow.com",
+                        "Services": [
+                            "BC140-API-NAVUSER",
+                            "BC140-PATHO",
+                            "BC140-WS-CRM",
+                            "nas-biztalk-to-nav-dks",
+                            "nas-biztalk-to-nav-ee",
+                            "nas-biztalk-to-nav-fi",
+                            "nas-biztalk-to-nav-no",
+                            "nas-biztalk-to-nav-se",
+                            "nas-ic-dks",
+                            "nas-itemmaster-dks",
+                            "nas-itemmaster-ee"
+                        ]
+                    }
+        ],
+        "CompanyNameToOperate":"Sales Denmark", 
+        "ManagmentPort":7045
+
+    },
+    {
+        "Name":"NDEV",
+        "Description":"BC Development environment",
+        "DatabaseServerName":"FRSCBVEDNSQL01T.eu.corp.arrow.com",
+        "DatabaseName":"NAV_DEV_BC_TEST",
+        "StatusCodeToImportObjectsToThisEnv": null,
+        "StatusCodeAfterImportObjectsToThisEnv": null,
+        "TargetBCServerInstance":"BC140-Client-RTC", 
+        "TargetBCServerName":"FRSCBVEDNSQL01T.eu.corp.arrow.com",
+        "ServersWithServicesToRestart":["FRSCBVEDNSQL01T.eu.corp.arrow.com"],
+        "CompanyNameToOperate":"Sales Denmark",
+        "AdminPowerShellConfigName": "svc_eu_devops_ro",
+        "ManagmentPort":7045
+    },
+    {
+        "Name":"BusinessCentralDevOpsPool",
+        "Description":"Test DevOps BC environment",
+        "DatabaseServerName":"FRSCBVBCDO001D",
+        "DatabaseName":"NAV_DEV_IMPROVISED_aka_uat_copy",
+        "TargetBCServerInstance": "BC140_DEV_aka_uat_copy"
+    },
+    {
+        "Name": "IHFX",
+        "Region": "Iberia",
+        "Description":"Iberia HotFix environment",
+        "DatabaseServerName": "FRSCBVIHFX001D",
+        "TargetBCServerName": "FRSCBVIHFX001D",
+        "DatabaseName": "TEST-BC-HFX",
+        "ServersWithServicesToRestart":["FRSCBVIHFX001D.eu.corp.arrow.com"],
+        "TargetBCServerInstance": "BC14-Client",
+        "CompanyNameToOperate":"",
+        "ManagmentPort":7045
+    },
+    {
+        "Name": "NHFX",
+        "Region": "Nordics",
+        "Description":"Nordics HotFix environment",
+        "DatabaseServerName": "FRSCBVNHFX001D.eu.corp.arrow.com",
+        "DatabaseName": "TEST-BC-HFX",
+        "TargetBCServerName": "FRSCBVNHFX001D.eu.corp.arrow.com",
+        "ServersWithServicesToRestart":["FRSCBVNHFX001D.eu.corp.arrow.com"],
+        "TargetBCServerInstance": "BC14-Client",
+        "CompanyNameToOperate":"Sales Denmark",
+        "ManagmentPort":7045
+    },
+    {
+        "Name": "IQAL",
+        "Region": "Iberia",
+        "Description":"Iberia Quality environment",
+        "DatabaseServerName": "FRSCBVISQL001Q.eu.corp.arrow.com",
+        "DatabaseName": "TEST-BC-QAL",
+        "ServersWithServicesToRestart":["FRSCBVIAPP002Q.eu.corp.arrow.com", "FRSCBVIAPP003Q.eu.corp.arrow.com"],
+        "TargetBCServerName": "FRSCBVIAPP002Q.eu.corp.arrow.com",
+        "TargetBCServerInstance": "BC14-Client",
+        "CompanyNameToOperate":"",
+        "ManagmentPort":7145
+    },
+    {
+        "Name": "NQAL",
+        "Region": "Nordics",
+        "Description":"Nordics Quality environment",
+        "DatabaseServerName": "FRSCBVNSQL001Q.eu.corp.arrow.com",
+        "DatabaseName": "TEST-BC-QAL",
+        "ServersWithServicesToRestart": [
+            {
+             "ServerName":"FRSCBVNAPP003Q.eu.corp.arrow.com",
+             "Services": ["BC14-NAS-1"]
+            },
+            {
+             "ServerName":"FRSCBVNAPP002Q.eu.corp.arrow.com",
+             "Services": [""]
+            }
+        ],
+        "TargetBCServerName": "FRSCBVNAPP002Q.eu.corp.arrow.com",
+        "TargetBCServerInstance": "BC14-Client",
+        "CompanyNameToOperate":"Sales Denmark",
+        "ManagmentPort":7145
+    },
+    {
+        "Name": "ISFT",
+        "Region": "Iberia",
+        "Description":"Iberia Sales Force",
+        "DatabaseServerName": "FRSCBVISFT001D.eu.corp.arrow.com",
+        "DatabaseName": "Iberia-SFC",
+        "ServersWithServicesToRestart":["FRSCBVISFT001D.eu.corp.arrow.com"],
+        "TargetBCServerName": "FRSCBVISFT001D.eu.corp.arrow.com",
+        "TargetBCServerInstance": "BC14-Client",
+        "CompanyNameToOperate":"",
+        "ManagmentPort":null
+    }
+]
+    

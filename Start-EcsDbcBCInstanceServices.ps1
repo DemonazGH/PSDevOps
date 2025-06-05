@@ -3,7 +3,7 @@ function Start-EcsDbcBCInstanceServices {
     param(
         [Parameter(Mandatory = $true, HelpMessage = "Environment short name")]
         [string]$EnvShortName,
-        [Parameter(Mandatory = $true, HelpMessage = "Environment short name")]
+        [Parameter(Mandatory = $true, HelpMessage = "List of services to start")]
         $Services,
         [Parameter(Mandatory = $false, HelpMessage = "Number of services to start before pausing")]
         [int]$BatchSize    = 4,

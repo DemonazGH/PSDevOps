@@ -1,0 +1,14 @@
+name: Testing-Multi-Server-Approach
+trigger: none
+
+stages:
+- stage: InitJsonToStoreStagingvariables
+  jobs:
+  - job: InitJsonToStoreStagingvariables
+    pool:
+      name: $(TARGETENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Test-ShowServerStatusStage -TargetEnvType $(TARGETENVTYPE)
+        

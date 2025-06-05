@@ -1,0 +1,14 @@
+name: BackupStrapi_$(AgentPoolName)
+
+pool:
+ name: $(AgentPoolName) 
+ 
+stages:
+- stage: BackupStrapi
+  jobs:
+  - job: BackupStrapi
+    timeoutInMinutes: 90
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Backup-EcsStrEnvironmentClass

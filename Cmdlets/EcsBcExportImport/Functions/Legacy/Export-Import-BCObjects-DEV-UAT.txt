@@ -1,0 +1,112 @@
+﻿#region Vars
+#endregion
+function Export-Import-BCObjects-DEV-UAT
+    {
+    [CmdletBinding()]
+    param(
+        [Parameter()][String] $SOXNumber, [switch]$Force = $false
+    )
+    if (($SOXNumber -eq "")) 
+    {
+        Write-Host("Version tag is empty. Specify it in the pipeline variables. Quitting.")
+        return
+    }
+    #TODO Change -RelativeFilePath to Live may be found in Globals.cfg when in prod. 
+    $ProdEnvConfig = Get-EnvironmentConfig -EnvironmentType 'PRD' -RelativeFilePath $SampleBCServerConfig
+    $UatEnvConfig = Get-EnvironmentConfig -EnvironmentType 'UAT' -RelativeFilePath $SampleBCServerConfig
+    $DevEnvConfig = Get-EnvironmentConfig -EnvironmentType 'DEV' -RelativeFilePath $SampleBCServerConfig
+    $ServersWithServicesToRestart = $UatEnvConfig.ServersWithServicesToRestart
+    Write-Host($ServersWithServicesToRestart)
+    # 0) Check if record status ready
+    $SoxApprovalObject = Get-SoxApprovalRecordFromTarget -SOXNumber $SOXNumber -ProdEnvConfig $ProdEnvConfig
+    $SoxApprovalObjectStatus = $SOXApprovalObject.Status
+    if ($SoxApprovalObjectStatus -eq "")
+    {
+        Write-Host("Sox Change managment record Not Found in  $($ProdEnvConfig.DatabaseName) ") -ForegroundColor Cyan
+        return  
+    }
+    if ($SoxApprovalObjectStatus -ne $UatEnvConfig.StatusCodeToImportObjectsToThisEnv)
+    {
+        Write-Host("To run the pipeline Sox Change managment record  Rec.Status should be equal to $($UatEnvConfig.StatusCodeToImportObjectsToThisEnv), current value is:  $SoxApprovalObjectStatus") -ForegroundColor Cyan
+        return
+    }
+    # Write to Verbose message stream to allow the use of -Verbose on cmdlets
+    Write-Verbose "Prepare Implementation of SOX Number $SOXNumber"
+    # 1) Create Folders for Objects, if necessary
+    $NavFolders = New-FoldersForSOX $SOXNumber  -SourceEnvironment $DevEnvConfig.Name -TargetEnvironment  $UatEnvConfig.Name -Verbose
+    $TargetObjectsBackupFolder = $NavFolders.TargetObjectsBackupFolder
+    $ChangedObjectsSourceFolder = $NavFolders.ChangedObjectsSourceFolder
+    # 2) Find changed objects in DEV
+    #   (NB! Take into consideration that it may be a new object, that does not exist, i.e. no object to store in the originals folder !)
+    $ChangedObjects = Get-ChangedObjects -SOXNumber $SOXNumber -SourceEnvironmentConfig $DevEnvConfig -Verbose
+    # 3) Export original objects from PROD as .txt and .fob as single object files
+    Write-Verbose "Exporting original objects as .txt and .fob as single object files"
+    [bool]$PreliminaryIsExported = $false
+    [bool]$IsExported = $false
+    [bool]$ObjectSetIncludesTable = $false
+    $ChangedObjects | ForEach-Object {
+        $PreliminaryIsExported = Export-Objects -Force $true -Object $_ -TargetObjectsBackupFolder $TargetObjectsBackupFolder `
+        -ChangedObjectsSourceFolder $ChangedObjectsSourceFolder -IsAnyObjectExported $PreliminaryIsExported `
+        -TargetEnvironmentConfig $UatEnvConfig -SourceEnvironmentConfig $DevEnvConfig
+        if ($ObjectSetIncludesTable -eq $false)
+        {
+           if ($_.ObjectType -eq "table")
+           {
+            $ObjectSetIncludesTable = $true
+            Write-Host("Objects to import include table(s), NAS services will be restarted (PENDING DEVELOPMENT)");
+           }
+        }
+        if (($IsExported -ne $true) -and ($PreliminaryIsExported -eq $true)) 
+        {
+            $IsExported = $PreliminaryIsExported
+        }
+    }
+    if ($IsExported -eq $false)
+    {
+        Write-Host "Nothing to export, quitting"
+        return
+    }
+    # 4) Export changed objects as one .fob package from DEV
+    Write-Verbose "Export changed objects as one .fob package from DEV"
+    $FilterString = Get-Filter-By-SOXNumber -SOXNumber $SOXNumber
+    $FobFile = $SOXNumber + "_" + [DateTime]::Today.ToString("ddMMyyyy") + ".fob"
+    write-Host "Filter String $FilterString"
+    Export-NAVApplicationObject -DatabaseName $DevEnvConfig.DatabaseName -DatabaseServer $DevEnvConfig.DatabaseServerName -Path $ChangedObjectsSourceFolder\$FobFile -Filter $FilterString -Confirm:$false -Force
+    Import-BCLicenseToTargetDatabase -TargetEnvironmentConfiguration $UatEnvConfig
+    $PreviouslyStoppedServicesNamesArr = Stop-BCServicesExceptForTarget -TargetEnvConfig $UatEnvConfig
+    if ( $PreviouslyStoppedServicesNamesArr.Count -ne 0)
+    {
+        Write-Host("Previously stopped services are: " + $PreviouslyStoppedServicesNamesArr)
+    }
+    #TODO May require doing it on a specific server azure agent
+    Restart-NAVServerInstance -ServerInstance $UatEnvConfig.TargetBCServerInstance
+    # 6) Import combined object file to the required environment
+    if ($ObjectSetIncludesTable -eq $true) 
+    {
+        Cust-Import-NAVApplicationObject -DatabaseServer $UatEnvConfig.DatabaseServerName -DatabaseName $UatEnvConfig.DatabaseName `
+        -Path $ChangedObjectsSourceFolder\$FobFile -NavServerInstance $UatEnvConfig.TargetBCServerInstance -NavServerName $UatEnvConfig.TargetBCServerName`
+        -ImportAction Overwrite -SynchronizeSchemaChanges Force -NavServerManagementPort $UatEnvConfig.ManagmentPort -Verbose
+     } 
+    else 
+    {
+        Cust-Import-NAVApplicationObject -DatabaseServer $UatEnvConfig.DatabaseServerName -DatabaseName $UatEnvConfig.DatabaseName `
+        -Path $ChangedObjectsSourceFolder\$FobFile -NavServerInstance $UatEnvConfig.TargetBCServerInstance -NavServerName $UatEnvConfig.TargetBCServerName`
+        -ImportAction Overwrite -SynchronizeSchemaChanges Yes -NavServerManagementPort $UatEnvConfig.ManagmentPort -Verbose
+    }
+    Write-Host("Run Restart-BC-Services")
+    #TODO Change development to PROD when imn prod
+    #Restart-BC-Services -TargetEnvironmentType 'UAT' 
+    Write-Host("Finished Restart-BC-Services")
+    Compile-NAVApplicationObject -DatabaseName $UatEnvConfig.DatabaseName -DatabaseServer $UatEnvConfig.DatabaseServerName `
+    -Filter $FilterString -NavServerInstance $UatEnvConfig.TargetBCServerInstance -NavServerName $UatEnvConfig.TargetBCServerName -NavServerManagementPort $UatEnvConfig.ManagmentPort `
+    -SynchronizeSchemaChanges Yes #-Force
+    Restart-NAVServerInstance -ServerInstance $UatEnvConfig.TargetBCServerInstance
+    Start-BCServicesExceptForTarget -TargetEnvConfig $UatEnvConfig -PreviouslyStoppedServicesNamesArr $PreviouslyStoppedServicesNamesArr
+    #TODO Importing configuaration package data (BC objects not present in live DEV and UAT)
+    #Invoke-NAVCodeunit -ServerInstance $DevEnvConfig.TargetBCServerInstance -CompanyName $DevEnvConfig.CompanyNameToOperate -CodeunitId 8614 -MethodName 'InPipelineExportConfigurationPackagesNoConfirmation' -Argument "$SOXNumber,$FolderPathToStoreConfigPackageFilesIn"
+    #Invoke-NAVCodeunit -ServerInstance $UatEnvConfig.TargetBCServerInstance -CompanyName $UatEnvConfig.CompanyNameToOperate -CodeunitId 8614 -MethodName 'ImportPackageXMLFromPathAndApplyPackage' -Argument "$SOXNumber,$FolderPathToStoreConfigPackageFilesIn"
+    Write-Output "Object(s) exported from $($DevEnvConfig.DatabaseName). Imported into $($UatEnvConfig.DatabaseName) on $($UatEnvConfig.TargetBCServerName), with schema changes applied if required. Compiled."
+    #TODO Update record later
+    #Update-SoxApprovalRecordInProd -SoxNumber $SOXNumber -NewStatusCode $UatEnvConfig.StatusCodeAfterImportObjectsToThisEnv -ProdEnvConfig $ProdEnvConfig -UatEnvConfig $UatEnvConfig
+    #if non-prod then should not be checking 
+}

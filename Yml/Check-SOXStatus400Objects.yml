@@ -1,0 +1,22 @@
+name: CheckSOXStatus_$(AgentPoolName)
+
+pool:
+  name: $(AgentPoolName)
+
+schedules:
+  - cron: "0 9,13,17,21 * * 1-5"  # At 09:00, 13:00, 17:00, 21:00, UTC time zone, Monday-Friday
+    displayName: "Check SOX Change Objects for Status 425"
+    branches:
+      include:
+        - main  # Ensures the schedule runs only on the main branch
+    always: true  # Forces the schedule to run even if there are no new changes
+
+stages:
+- stage: CheckSOXStatus
+  jobs:
+  - job: CheckSOXStatus
+    timeoutInMinutes: 30
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Get-BCObjectStatus

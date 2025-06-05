@@ -1,0 +1,144 @@
+name: Import_DataTo_$(AgentPoolName)
+
+pool:
+ name: $(AgentPoolName)
+
+variables:
+  pipelineID: $(Build.BuildNumber)
+
+stages:
+- stage: InitializeProcess
+  jobs:
+  - job: InitializeProcess
+    timeoutInMinutes: 30
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Initialize-EcsRstRestoreDataOnlyProcess -restorePipelineID_arg '$(pipelineID)' -envShortName_arg '$(AgentPoolName)' -sqlBackupFilePath_arg '$(sqlBackupPath)' $(sqlBackupUseLatestProd) $(keepCurrentBCUserAccess)
+
+- stage: CopyFiles
+  jobs:
+  - job: CopyFiles
+    timeoutInMinutes: 360
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Copy-EcsRstFilesToLocals -restorePipelineID_arg '$(pipelineID)'
+        
+- stage: ExportUserAccessBC
+  jobs:
+  - job: ExportUserAccessBC
+    timeoutInMinutes: 30
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Export-EcsRstCurrentUserAccess -restorePipelineID_arg '$(pipelineID)'
+
+
+- stage: ExportSqlDatabaseRoles
+  jobs:
+  - job: ExportSqlDatabaseRoles
+    timeoutInMinutes: 30
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Export-EcsRstSqlDatabaseRoles -restorePipelineID_arg '$(pipelineID)'
+
+- stage: StopNavServerInstanceServices
+  jobs:
+  - job: StopNavServerInstanceServices
+    timeoutInMinutes: 60
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Stop-EcsRstBCInstanceServices -restorePipelineID_arg '$(pipelineID)'
+
+- stage: StopTargetNavServerInstance
+  jobs:
+  - job: StoptTargetNavServerInstance
+    timeoutInMinutes: 30
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Stop-EcsRstNavService -restorePipelineID_arg '$(pipelineID)'
+
+- stage: RestoreSQLBackup
+  jobs:
+  - job: RestoreSQLBackup
+    timeoutInMinutes: 1800
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Restore-EcsRstSQLBackup -restorePipelineID_arg '$(pipelineID)'
+
+- stage: StartTargetNavServerInstance
+  jobs:
+  - job: StartTargetNavServerInstance
+    timeoutInMinutes: 30
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Start-EcsRstNavService -restorePipelineID_arg '$(pipelineID)'
+
+- stage: StartNavServerInstanceServices
+  jobs:
+  - job: StartNavServerInstanceServices
+    timeoutInMinutes: 60
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Start-EcsRstBCInstanceServices -restorePipelineID_arg '$(pipelineID)'
+
+- stage: ImportStoredBCUserAccess
+  jobs:
+  - job: ImportStoredBCUserAccess
+    timeoutInMinutes: 60
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Import-EcsRstUserAccessStored -restorePipelineID_arg '$(pipelineID)'
+
+- stage: ImportStoredSqlDatabaseRoles
+  jobs:
+  - job: ImportStoredSqlDatabaseRoles
+    timeoutInMinutes: 30
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Import-EcsRstSqlDatabaseRoles -restorePipelineID_arg '$(pipelineID)'
+
+- stage: PostRestoreSQLBackupTasks
+  jobs:
+  - job: PostRestoreSQLBackupTasks
+    timeoutInMinutes: 30
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Start-EcsRstPostRestoreTasks -restorePipelineID_arg '$(pipelineID)'
+
+- stage: RestartNavServerInstance
+  jobs:
+  - job: RestartNavServerInstance
+    timeoutInMinutes: 30
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Restart-EcsRstNavService -restorePipelineID_arg '$(pipelineID)'
+
+- stage: BCSchemaSynchronization
+  jobs:
+  - job: BCSchemaSynchronization
+    timeoutInMinutes: 30
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Sync-EcsRstNavSchema -restorePipelineID_arg '$(pipelineID)'
+
+- stage: RegisterSuccessfulRestore
+  jobs:
+  - job: RegisterSuccessfulRestore
+    timeoutInMinutes: 30
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Register-EcsRstSuccessfulRestore -restorePipelineID_arg '$(pipelineID)'

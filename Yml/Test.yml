@@ -1,0 +1,13 @@
+name: SOX-Version-Control
+trigger: none
+
+stages:
+- stage: InitJsonToStoreStagingvariables
+  jobs:
+  - job: InitJsonToStoreStagingvariables
+    pool:
+      name: NDEV
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Test

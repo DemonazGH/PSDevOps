@@ -1,0 +1,43 @@
+[
+    {
+        "Name":"PRD",
+        "Description":"BC Production environment",
+        "DatabaseServerName": "FRSCBVSQLDYN01P.eu.corp.arrow.com",
+        "DatabaseName":"NAV_PROD_IMPROVISED_aka_uat_copy",
+        "StatusCodeToImportObjectsToThisEnv":"800",
+        "StatusCodeAfterImportObjectsToThisEnv":"900",
+        "TargetBCServerInstance":"NAV_PROD",  //TODO UPDATE
+        "TargetBCServerName":"FRSCBVSQLDYN01P.eu.corp.arrow.com",
+        "ServersWithServicesToRestart":["FRSCBVBCDO001D"], //TODO UPDATE
+        "CompanyNameToOperate":"IPVista DK", //TODO UPDATE
+        "ManagmentPort":10245   //TODO UPDATE
+    },
+    {
+        "Name":"UAT",
+        "Description":"BC UAT environment",
+        "DatabaseServerName":"FRSCBVSQLBC001T.eu.corp.arrow.com",
+        "DatabaseName":"NAV_UAT",
+        "StatusCodeToImportObjectsToThisEnv":"400",
+        "StatusCodeAfterImportObjectsToThisEnv":"500",
+        "TargetBCServerInstance":"BC140_UATCopy", //TODO UPDATE
+        "TargetBCServerName":"FRSCBVSQLBC001T.eu.corp.arrow.com",
+        "ServersWithServicesToRestart":["FRSCBVSQLBC001T.eu.corp.arrow.com"], //TODO UPDATE
+        "CompanyNameToOperate":"IPVista DK", //TODO UPDATE
+        "ManagmentPort":10045 //TODO UPDATE
+
+    },
+    {
+        "Name":"DEV",
+        "Description":"BC Development environment",
+        "DatabaseServerName":"FRSCBVEDNSQL01T.eu.corp.arrow.com",
+        "DatabaseName":"NAV_DEV_BC_TEST",
+         "StatusCodeToImportObjectsToThisEnv": null,
+        "StatusCodeAfterImportObjectsToThisEnv": null,
+        "TargetBCServerInstance":"BC140_DEV_aka_uat_copy", //TODO UPDATE
+        "TargetBCServerName":"FRSCBVEDNSQL01T.eu.corp.arrow.com",
+        "ServersWithServicesToRestart":["FRSCBVEDNSQL01T.eu.corp.arrow.com"], //TODO UPDATE
+        "CompanyNameToOperate":"Nordic Group", //TODO UPDATE
+        "ManagmentPort":null //TODO UPDATE
+    }
+]
+    

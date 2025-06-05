@@ -1,0 +1,45 @@
+name: SOX-Version-Fallback-Services-Start
+trigger: none
+
+stages:
+- stage: StartServicesRelatedToTarget
+  condition: succeeded()
+  jobs:
+  - job: StartServicesRelatedToTarget
+    pool:
+      name: $(TARGETENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Start-ServicesRelatedToTarget -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)' -VariablesFilePath '$(VARFILEPATH)'
+- stage: SendSuccessMessage
+  dependsOn:
+    - StartServicesRelatedToTarget
+  condition: |
+    or(
+      eq(dependencies.StartServicesRelatedToTarget.result, 'Succeeded'),
+      eq(dependencies.StartServicesRelatedToTarget.result, 'Skipped')
+    )
+  jobs:
+  - job: SendSuccessMessage
+    pool:
+      name: $(TARGETENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Send-SuccessMessage -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)' -VariablesFilePath '$(VARFILEPATH)'
+# Register-SOXPipelineSuccess
+# - stage: TestServicesOperational
+#   dependsOn: 
+#   - StartServicesRelatedToTarget
+#   - GetSourceObjectsDataAndPrepareFolders
+#   variables:
+#     VariablesFilePath: $[ stageDependencies.GetSourceObjectsDataAndPrepareFolders.GetSourceObjectsDataAndPrepareFolders.outputs['SetVarPathStep.VariablesFilePath'] ]
+#   jobs:
+#   - job: TestServicesOperational
+#     pool:
+#       name: $(TARGETENVTYPE)
+#     steps:
+#     - powershell: |
+#         .\Initialize-Environment.ps1
+#         Test-ServicesOperational -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)' -VariablesFilePath '$(VariablesFilePath)'

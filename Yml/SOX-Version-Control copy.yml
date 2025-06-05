@@ -1,0 +1,77 @@
+name: Deploy-ToHFX
+trigger: none
+
+stages:
+- stage: InitJsonToStoreStagingvariables
+  jobs:
+  - job: InitJsonToStoreStagingvariables
+    pool:
+      name: $(SOURCEENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Write-CheckLogFile
+        Write-JSONFileForVariables
+- stage: GetSourceObjectsDataAndPrepareFolders
+  dependsOn: InitJsonToStoreStagingvariables
+  jobs:
+  - job: GetSourceObjectsDataAndPrepareFolders
+    pool:
+      name: $(SOURCEENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Get-SourceObjectsDataAndPrepareFolders -SOXNumber '$(VERSIONTAG)' -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)'
+- stage: ExportIfAllowedBackupObjectsTarget
+  dependsOn: GetSourceObjectsDataAndPrepareFolders
+  jobs:
+  - job: ExportIfAllowedBackupObjectsTarget
+    pool:
+      name: $(TARGETENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Export-IfAllowed-BackupObjectsTarget -SOXNumber '$(VERSIONTAG)' -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)'
+- stage: ExportObjectsFromSource
+  dependsOn: ExportIfAllowedBackupObjectsTarget
+  jobs:
+  - job: ExportObjectsFromSource
+    pool:
+      name: $(SOURCEENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Export-ObjectsFromSource -SOXNumber '$(VERSIONTAG)' -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)'
+- stage: StopServicesRelatedToTarget
+  dependsOn: ExportObjectsFromSource
+  jobs:
+  - job: StopServicesRelatedToTarget
+    pool:
+      name: $(TARGETENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Stop-ServicesRelatedToTarget -SOXNumber '$(VERSIONTAG)' -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)'
+- stage: ImportObjectsToTarget
+  dependsOn: StopServicesRelatedToTarget
+  jobs:
+  - job: ImportObjectsToTarget
+    pool:
+      name: $(TARGETENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Import-ObjectsToTarget -SOXNumber '$(VERSIONTAG)' -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)'
+- stage: StartServicesRelatedToTarget
+  dependsOn: ImportObjectsToTarget
+  jobs:
+  - job: StartServicesRelatedToTarget
+    pool:
+      name: $(TARGETENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Start-ServicesRelatedToTarget -SOXNumber '$(VERSIONTAG)' -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)'
+
+ 
+        

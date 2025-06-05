@@ -1,0 +1,586 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Configuration>
+  <DefaultSettings>
+  </DefaultSettings>
+  <ViewDefinitions>
+    <View>
+      <Name>NavTenantRuntimeSettings</Name>
+      <ViewSelectedBy>
+        <TypeName>Microsoft.Dynamics.Nav.Types.NavTenantRuntimeSettings</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Id</Label>
+            <Width>20</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Width>30</Width>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Id</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>State</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>    
+    </View>
+    <View>
+      <Name>NavAppInfoDetail</Name>
+      <ViewSelectedBy>
+        <TypeName>Microsoft.Dynamics.Nav.Apps.Management.Cmdlets.NavAppInfoDetail</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Id</Label>
+                <PropertyName>AppId</PropertyName>
+              </ListItem>
+              <ListItem>
+                <PropertyName>Name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <PropertyName>Version</PropertyName>
+              </ListItem>
+              <ListItem>
+                <PropertyName>Publisher</PropertyName>
+              </ListItem>
+              <ListItem>
+                <PropertyName>ExtensionType</PropertyName>
+              </ListItem>
+              <ListItem>
+                <PropertyName>Scope</PropertyName>
+              </ListItem>
+              <ListItem>
+                <PropertyName>Brief</PropertyName>
+              </ListItem>
+              <ListItem>
+                <PropertyName>Description</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Compatibility Id</Label>
+                <PropertyName>CompatibilityId</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Developer Tenant ID</Label>
+                <PropertyName>DeveloperTenantId</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Privacy Statement</Label>
+                <PropertyName>PrivacyStatement</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>EULA</Label>
+                <PropertyName>Eula</PropertyName>
+              </ListItem>
+              <ListItem>
+                  <Label>Help</Label>
+                  <PropertyName>Help</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Url</Label>
+                <PropertyName>Url</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Logo</Label>      
+                <PropertyName>Logo</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Screen Shots</Label>      
+                <ScriptBlock>
+                    $out = ""
+                    $count = 0
+                    Foreach($s in $_.ScreenShots)
+                    {
+                      $out = "$out{0}, " -f $s.toString()
+                      $count++
+                      if($count -ge 10)
+                      {
+                        $out = "$out{0}" -f '...'
+                        break
+                      }
+                    }
+                    $out
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Prerequisites</Label>
+                <ScriptBlock>
+                  $out = ""
+                  Foreach($p in $_.Prerequisites)
+                  {
+                    $out = "$out{0}`n" -f $p.toString()
+                  }
+                  $out
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Dependencies</Label>
+                <ScriptBlock>
+                  $out = ""
+                  Foreach($d in $_.Dependencies)
+                  {
+                    $out = "$out{0}`n" -f $d.toString()
+                  }
+                  $out
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$_.GetAdditionalProperties().Count -gt 0</ScriptBlock>
+                </ItemSelectionCondition>
+                <Label>Is Installed</Label>
+                <ScriptBlock>
+                   $_.GetAdditionalProperties()["IsInstalled"]
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$_.GetAdditionalProperties().Count -gt 0</ScriptBlock>
+                </ItemSelectionCondition>
+                <Label>Extension Data Version</Label>
+                <ScriptBlock>
+                  $_.GetAdditionalProperties()["ExtensionDataVersion"]
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$_.GetAdditionalProperties().Count -gt 0</ScriptBlock>
+                </ItemSelectionCondition>
+                <Label>Sync State</Label>
+                <ScriptBlock>
+                  $_.GetAdditionalProperties()["SyncState"]
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$_.GetAdditionalProperties().Count -gt 0</ScriptBlock>
+                </ItemSelectionCondition>
+                <Label>Is Published</Label>
+                <ScriptBlock>
+                  $_.GetAdditionalProperties()["IsPublished"]
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Package Id</Label>
+                <PropertyName>PackageId</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <View>
+      <Name>NavAppInfo</Name>
+      <ViewSelectedBy>
+        <TypeName>Microsoft.Dynamics.Nav.Apps.Management.Cmdlets.NavAppInfo</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Id</Label>
+                <PropertyName>AppId</PropertyName>
+              </ListItem>
+              <ListItem>
+                <PropertyName>Name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <PropertyName>Version</PropertyName>
+              </ListItem>
+              <ListItem>
+                <PropertyName>Publisher</PropertyName>
+              </ListItem>
+              <ListItem>
+                <PropertyName>ExtensionType</PropertyName>
+              </ListItem>
+              <ListItem>
+                <PropertyName>Scope</PropertyName>
+              </ListItem>
+              <ListItem>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$_.GetAdditionalProperties().Count -gt 0</ScriptBlock>
+                </ItemSelectionCondition>
+                <Label>Is Installed</Label>
+                <ScriptBlock>
+                   $_.GetAdditionalProperties()["IsInstalled"]
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$_.GetAdditionalProperties().Count -gt 0</ScriptBlock>
+                </ItemSelectionCondition>
+                <Label>Extension Data Version</Label>
+                <ScriptBlock>
+                  $_.GetAdditionalProperties()["ExtensionDataVersion"]
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$_.GetAdditionalProperties().Count -gt 0</ScriptBlock>
+                </ItemSelectionCondition>
+                <Label>Sync State</Label>
+                <ScriptBlock>
+                  $_.GetAdditionalProperties()["SyncState"]
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$_.GetAdditionalProperties().Count -gt 0</ScriptBlock>
+                </ItemSelectionCondition>
+                <Label>Is Published</Label>
+                <ScriptBlock>
+                  $_.GetAdditionalProperties()["IsPublished"]
+                </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <View>
+      <Name>NavAppTableModificationResponse</Name>
+      <ViewSelectedBy>
+        <TypeName>Microsoft.Dynamics.Nav.Types.Apps.NavAppTableModificationResponse</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Id</Label>
+                <PropertyName>AppId</PropertyName>
+              </ListItem>
+              <ListItem>
+                <PropertyName>Name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <PropertyName>Version</PropertyName>
+              </ListItem>
+              <ListItem>
+                <PropertyName>Publisher</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Tables Modified</Label>
+                <PropertyName>TablesModified</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Tables Added</Label>
+                <PropertyName>TablesAdded</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Dependencies</Label>
+                <PropertyName>Dependencies</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <View>
+      <Name>TableSynchSetupForDataUpgradeResponse</Name>
+      <ViewSelectedBy>
+        <TypeName>Microsoft.Dynamics.Nav.Types.TableSynchSetupForDataUpgradeResponse</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Old Table Id</Label>
+                <PropertyName>OldTableId</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>New Table Id</Label>
+                <PropertyName>NewTableId</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Change Type</Label>
+                <PropertyName>ChangeType</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Base Hash</Label>
+                <PropertyName>BaseHash</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>New Hash</Label>
+                <PropertyName>NewHash</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Changes Affect SQL Schema</Label>
+                <PropertyName>ChangesAffectSqlSchema</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Fields and Changes</Label>
+                <ScriptBlock>
+                  $out = ""
+                  $count = 0
+                  Foreach($s in $_.FieldsAndChanges)
+                  {
+                    if($s.HasChanges -eq $True)
+                    {
+                      $out = "$out{0}, " -f $s.toString()
+                      $count++
+                      if($count -ge 10)
+                      {
+                        $out = "$out{0}" -f '...'
+                        break
+                      }
+                    }
+                  }
+                  $out
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Indexes and Changes</Label>
+                <ScriptBlock>
+                  $out = ""
+                  $count = 0
+                  Foreach($c in $_.IndexesAndChanges)
+                  {
+                    if($c.HasChanges -eq $True)
+                    {
+                      $out = "$out{0}`n" -f $c.toString()
+                      $count++
+                      if($count -ge 10)
+                      {
+                        $out = "$out[0]" -f '...'
+                        break
+                      }
+                    }
+                  }
+                  $out
+                </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+  </ViewDefinitions>
+</Configuration>
+<!-- SIG # Begin signature block -->
+<!-- MIIn3AYJKoZIhvcNAQcCoIInzTCCJ8kCAQExDzANBglghkgBZQMEAgEFADB5Bgor -->
+<!-- BgEEAYI3AgEEoGswaTA0BgorBgEEAYI3AgEeMCYCAwEAAAQQH8w7YFlLCE63JNLG -->
+<!-- KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCBrPnj1zeJNGnKx -->
+<!-- V+HsKUO1qkrExcIcb9rx3jsMAlOLw6CCDYEwggX/MIID56ADAgECAhMzAAACUosz -->
+<!-- qviV8znbAAAAAAJSMA0GCSqGSIb3DQEBCwUAMH4xCzAJBgNVBAYTAlVTMRMwEQYD -->
+<!-- VQQIEwpXYXNoaW5ndG9uMRAwDgYDVQQHEwdSZWRtb25kMR4wHAYDVQQKExVNaWNy -->
+<!-- b3NvZnQgQ29ycG9yYXRpb24xKDAmBgNVBAMTH01pY3Jvc29mdCBDb2RlIFNpZ25p -->
+<!-- bmcgUENBIDIwMTEwHhcNMjEwOTAyMTgzMjU5WhcNMjIwOTAxMTgzMjU5WjB0MQsw -->
+<!-- CQYDVQQGEwJVUzETMBEGA1UECBMKV2FzaGluZ3RvbjEQMA4GA1UEBxMHUmVkbW9u -->
+<!-- ZDEeMBwGA1UEChMVTWljcm9zb2Z0IENvcnBvcmF0aW9uMR4wHAYDVQQDExVNaWNy -->
+<!-- b3NvZnQgQ29ycG9yYXRpb24wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB -->
+<!-- AQDQ5M+Ps/X7BNuv5B/0I6uoDwj0NJOo1KrVQqO7ggRXccklyTrWL4xMShjIou2I -->
+<!-- sbYnF67wXzVAq5Om4oe+LfzSDOzjcb6ms00gBo0OQaqwQ1BijyJ7NvDf80I1fW9O -->
+<!-- L76Kt0Wpc2zrGhzcHdb7upPrvxvSNNUvxK3sgw7YTt31410vpEp8yfBEl/hd8ZzA -->
+<!-- v47DCgJ5j1zm295s1RVZHNp6MoiQFVOECm4AwK2l28i+YER1JO4IplTH44uvzX9o -->
+<!-- RnJHaMvWzZEpozPy4jNO2DDqbcNs4zh7AWMhE1PWFVA+CHI/En5nASvCvLmuR/t8 -->
+<!-- q4bc8XR8QIZJQSp+2U6m2ldNAgMBAAGjggF+MIIBejAfBgNVHSUEGDAWBgorBgEE -->
+<!-- AYI3TAgBBggrBgEFBQcDAzAdBgNVHQ4EFgQUNZJaEUGL2Guwt7ZOAu4efEYXedEw -->
+<!-- UAYDVR0RBEkwR6RFMEMxKTAnBgNVBAsTIE1pY3Jvc29mdCBPcGVyYXRpb25zIFB1 -->
+<!-- ZXJ0byBSaWNvMRYwFAYDVQQFEw0yMzAwMTIrNDY3NTk3MB8GA1UdIwQYMBaAFEhu -->
+<!-- ZOVQBdOCqhc3NyK1bajKdQKVMFQGA1UdHwRNMEswSaBHoEWGQ2h0dHA6Ly93d3cu -->
+<!-- bWljcm9zb2Z0LmNvbS9wa2lvcHMvY3JsL01pY0NvZFNpZ1BDQTIwMTFfMjAxMS0w -->
+<!-- Ny0wOC5jcmwwYQYIKwYBBQUHAQEEVTBTMFEGCCsGAQUFBzAChkVodHRwOi8vd3d3 -->
+<!-- Lm1pY3Jvc29mdC5jb20vcGtpb3BzL2NlcnRzL01pY0NvZFNpZ1BDQTIwMTFfMjAx -->
+<!-- MS0wNy0wOC5jcnQwDAYDVR0TAQH/BAIwADANBgkqhkiG9w0BAQsFAAOCAgEAFkk3 -->
+<!-- uSxkTEBh1NtAl7BivIEsAWdgX1qZ+EdZMYbQKasY6IhSLXRMxF1B3OKdR9K/kccp -->
+<!-- kvNcGl8D7YyYS4mhCUMBR+VLrg3f8PUj38A9V5aiY2/Jok7WZFOAmjPRNNGnyeg7 -->
+<!-- l0lTiThFqE+2aOs6+heegqAdelGgNJKRHLWRuhGKuLIw5lkgx9Ky+QvZrn/Ddi8u -->
+<!-- TIgWKp+MGG8xY6PBvvjgt9jQShlnPrZ3UY8Bvwy6rynhXBaV0V0TTL0gEx7eh/K1 -->
+<!-- o8Miaru6s/7FyqOLeUS4vTHh9TgBL5DtxCYurXbSBVtL1Fj44+Od/6cmC9mmvrti -->
+<!-- yG709Y3Rd3YdJj2f3GJq7Y7KdWq0QYhatKhBeg4fxjhg0yut2g6aM1mxjNPrE48z -->
+<!-- 6HWCNGu9gMK5ZudldRw4a45Z06Aoktof0CqOyTErvq0YjoE4Xpa0+87T/PVUXNqf -->
+<!-- 7Y+qSU7+9LtLQuMYR4w3cSPjuNusvLf9gBnch5RqM7kaDtYWDgLyB42EfsxeMqwK -->
+<!-- WwA+TVi0HrWRqfSx2olbE56hJcEkMjOSKz3sRuupFCX3UroyYf52L+2iVTrda8XW -->
+<!-- esPG62Mnn3T8AuLfzeJFuAbfOSERx7IFZO92UPoXE1uEjL5skl1yTZB3MubgOA4F -->
+<!-- 8KoRNhviFAEST+nG8c8uIsbZeb08SeYQMqjVEmkwggd6MIIFYqADAgECAgphDpDS -->
+<!-- AAAAAAADMA0GCSqGSIb3DQEBCwUAMIGIMQswCQYDVQQGEwJVUzETMBEGA1UECBMK -->
+<!-- V2FzaGluZ3RvbjEQMA4GA1UEBxMHUmVkbW9uZDEeMBwGA1UEChMVTWljcm9zb2Z0 -->
+<!-- IENvcnBvcmF0aW9uMTIwMAYDVQQDEylNaWNyb3NvZnQgUm9vdCBDZXJ0aWZpY2F0 -->
+<!-- ZSBBdXRob3JpdHkgMjAxMTAeFw0xMTA3MDgyMDU5MDlaFw0yNjA3MDgyMTA5MDla -->
+<!-- MH4xCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpXYXNoaW5ndG9uMRAwDgYDVQQHEwdS -->
+<!-- ZWRtb25kMR4wHAYDVQQKExVNaWNyb3NvZnQgQ29ycG9yYXRpb24xKDAmBgNVBAMT -->
+<!-- H01pY3Jvc29mdCBDb2RlIFNpZ25pbmcgUENBIDIwMTEwggIiMA0GCSqGSIb3DQEB -->
+<!-- AQUAA4ICDwAwggIKAoICAQCr8PpyEBwurdhuqoIQTTS68rZYIZ9CGypr6VpQqrgG -->
+<!-- OBoESbp/wwwe3TdrxhLYC/A4wpkGsMg51QEUMULTiQ15ZId+lGAkbK+eSZzpaF7S -->
+<!-- 35tTsgosw6/ZqSuuegmv15ZZymAaBelmdugyUiYSL+erCFDPs0S3XdjELgN1q2jz -->
+<!-- y23zOlyhFvRGuuA4ZKxuZDV4pqBjDy3TQJP4494HDdVceaVJKecNvqATd76UPe/7 -->
+<!-- 4ytaEB9NViiienLgEjq3SV7Y7e1DkYPZe7J7hhvZPrGMXeiJT4Qa8qEvWeSQOy2u -->
+<!-- M1jFtz7+MtOzAz2xsq+SOH7SnYAs9U5WkSE1JcM5bmR/U7qcD60ZI4TL9LoDho33 -->
+<!-- X/DQUr+MlIe8wCF0JV8YKLbMJyg4JZg5SjbPfLGSrhwjp6lm7GEfauEoSZ1fiOIl -->
+<!-- XdMhSz5SxLVXPyQD8NF6Wy/VI+NwXQ9RRnez+ADhvKwCgl/bwBWzvRvUVUvnOaEP -->
+<!-- 6SNJvBi4RHxF5MHDcnrgcuck379GmcXvwhxX24ON7E1JMKerjt/sW5+v/N2wZuLB -->
+<!-- l4F77dbtS+dJKacTKKanfWeA5opieF+yL4TXV5xcv3coKPHtbcMojyyPQDdPweGF -->
+<!-- RInECUzF1KVDL3SV9274eCBYLBNdYJWaPk8zhNqwiBfenk70lrC8RqBsmNLg1oiM -->
+<!-- CwIDAQABo4IB7TCCAekwEAYJKwYBBAGCNxUBBAMCAQAwHQYDVR0OBBYEFEhuZOVQ -->
+<!-- BdOCqhc3NyK1bajKdQKVMBkGCSsGAQQBgjcUAgQMHgoAUwB1AGIAQwBBMAsGA1Ud -->
+<!-- DwQEAwIBhjAPBgNVHRMBAf8EBTADAQH/MB8GA1UdIwQYMBaAFHItOgIxkEO5FAVO -->
+<!-- 4eqnxzHRI4k0MFoGA1UdHwRTMFEwT6BNoEuGSWh0dHA6Ly9jcmwubWljcm9zb2Z0 -->
+<!-- LmNvbS9wa2kvY3JsL3Byb2R1Y3RzL01pY1Jvb0NlckF1dDIwMTFfMjAxMV8wM18y -->
+<!-- Mi5jcmwwXgYIKwYBBQUHAQEEUjBQME4GCCsGAQUFBzAChkJodHRwOi8vd3d3Lm1p -->
+<!-- Y3Jvc29mdC5jb20vcGtpL2NlcnRzL01pY1Jvb0NlckF1dDIwMTFfMjAxMV8wM18y -->
+<!-- Mi5jcnQwgZ8GA1UdIASBlzCBlDCBkQYJKwYBBAGCNy4DMIGDMD8GCCsGAQUFBwIB -->
+<!-- FjNodHRwOi8vd3d3Lm1pY3Jvc29mdC5jb20vcGtpb3BzL2RvY3MvcHJpbWFyeWNw -->
+<!-- cy5odG0wQAYIKwYBBQUHAgIwNB4yIB0ATABlAGcAYQBsAF8AcABvAGwAaQBjAHkA -->
+<!-- XwBzAHQAYQB0AGUAbQBlAG4AdAAuIB0wDQYJKoZIhvcNAQELBQADggIBAGfyhqWY -->
+<!-- 4FR5Gi7T2HRnIpsLlhHhY5KZQpZ90nkMkMFlXy4sPvjDctFtg/6+P+gKyju/R6mj -->
+<!-- 82nbY78iNaWXXWWEkH2LRlBV2AySfNIaSxzzPEKLUtCw/WvjPgcuKZvmPRul1LUd -->
+<!-- d5Q54ulkyUQ9eHoj8xN9ppB0g430yyYCRirCihC7pKkFDJvtaPpoLpWgKj8qa1hJ -->
+<!-- Yx8JaW5amJbkg/TAj/NGK978O9C9Ne9uJa7lryft0N3zDq+ZKJeYTQ49C/IIidYf -->
+<!-- wzIY4vDFLc5bnrRJOQrGCsLGra7lstnbFYhRRVg4MnEnGn+x9Cf43iw6IGmYslmJ -->
+<!-- aG5vp7d0w0AFBqYBKig+gj8TTWYLwLNN9eGPfxxvFX1Fp3blQCplo8NdUmKGwx1j -->
+<!-- NpeG39rz+PIWoZon4c2ll9DuXWNB41sHnIc+BncG0QaxdR8UvmFhtfDcxhsEvt9B -->
+<!-- xw4o7t5lL+yX9qFcltgA1qFGvVnzl6UJS0gQmYAf0AApxbGbpT9Fdx41xtKiop96 -->
+<!-- eiL6SJUfq/tHI4D1nvi/a7dLl+LrdXga7Oo3mXkYS//WsyNodeav+vyL6wuA6mk7 -->
+<!-- r/ww7QRMjt/fdW1jkT3RnVZOT7+AVyKheBEyIXrvQQqxP/uozKRdwaGIm1dxVk5I -->
+<!-- RcBCyZt2WwqASGv9eZ/BvW1taslScxMNelDNMYIZsTCCGa0CAQEwgZUwfjELMAkG -->
+<!-- A1UEBhMCVVMxEzARBgNVBAgTCldhc2hpbmd0b24xEDAOBgNVBAcTB1JlZG1vbmQx -->
+<!-- HjAcBgNVBAoTFU1pY3Jvc29mdCBDb3Jwb3JhdGlvbjEoMCYGA1UEAxMfTWljcm9z -->
+<!-- b2Z0IENvZGUgU2lnbmluZyBQQ0EgMjAxMQITMwAAAlKLM6r4lfM52wAAAAACUjAN -->
+<!-- BglghkgBZQMEAgEFAKCB0DAZBgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgor -->
+<!-- BgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAvBgkqhkiG9w0BCQQxIgQg9FaUc2Gp -->
+<!-- Qgsq4wPj/79W8ToTUsHlRgBvjdMyGqmOQgMwZAYKKwYBBAGCNwIBDDFWMFSgNoA0 -->
+<!-- AGcAbABvAGIAYQBsAGkAegBlAC4AYwB1AGwAdAB1AHIAZQAuAG0AcgAtAEkATgAu -->
+<!-- AGoAc6EagBhodHRwOi8vd3d3Lm1pY3Jvc29mdC5jb20wDQYJKoZIhvcNAQEBBQAE -->
+<!-- ggEAucZfZUrwCaXMBH2JXPsNnH4JWwa+x1shOdC0f9VhKn9+FjvWpqkkH3Qxmauz -->
+<!-- YdjaNn+8LntVjACWw4dh4yWsyWVqgOQ7RUQt735BKJw9CRnuMjmhp+c00YCYLMAR -->
+<!-- buyBuWrjR0zKtr5vbBMbph9q6g+1v4WyyQKDCNjvaNm/GZpzUIErHkAX0/5ZosV9 -->
+<!-- 9tDuI307qu8DZ2CQwCEi8RExT7lBnnuXzn2pTWjgU5uuXQLZVKCUL2Q8LaKyH9z1 -->
+<!-- r/1D8ojJv3DTgo41u/eZNbACRUP20YSu73yYFm2tDhfrKl2o2Q30T6oC9M/38g26 -->
+<!-- S9P4QZYh8FTTQD+VIq2TASLIK6GCFxkwghcVBgorBgEEAYI3AwMBMYIXBTCCFwEG -->
+<!-- CSqGSIb3DQEHAqCCFvIwghbuAgEDMQ8wDQYJYIZIAWUDBAIBBQAwggFZBgsqhkiG -->
+<!-- 9w0BCRABBKCCAUgEggFEMIIBQAIBAQYKKwYBBAGEWQoDATAxMA0GCWCGSAFlAwQC -->
+<!-- AQUABCAMDnkzlAkyd73WfXnTPxmEmlFP4DBBhzbhq5VoqvkTugIGYoZATgcuGBMy -->
+<!-- MDIyMDUyNjA1MTQ0OC41NzdaMASAAgH0oIHYpIHVMIHSMQswCQYDVQQGEwJVUzET -->
+<!-- MBEGA1UECBMKV2FzaGluZ3RvbjEQMA4GA1UEBxMHUmVkbW9uZDEeMBwGA1UEChMV -->
+<!-- TWljcm9zb2Z0IENvcnBvcmF0aW9uMS0wKwYDVQQLEyRNaWNyb3NvZnQgSXJlbGFu -->
+<!-- ZCBPcGVyYXRpb25zIExpbWl0ZWQxJjAkBgNVBAsTHVRoYWxlcyBUU1MgRVNOOkQw -->
+<!-- ODItNEJGRC1FRUJBMSUwIwYDVQQDExxNaWNyb3NvZnQgVGltZS1TdGFtcCBTZXJ2 -->
+<!-- aWNloIIRaDCCBxQwggT8oAMCAQICEzMAAAGP81Go61py3cwAAQAAAY8wDQYJKoZI -->
+<!-- hvcNAQELBQAwfDELMAkGA1UEBhMCVVMxEzARBgNVBAgTCldhc2hpbmd0b24xEDAO -->
+<!-- BgNVBAcTB1JlZG1vbmQxHjAcBgNVBAoTFU1pY3Jvc29mdCBDb3Jwb3JhdGlvbjEm -->
+<!-- MCQGA1UEAxMdTWljcm9zb2Z0IFRpbWUtU3RhbXAgUENBIDIwMTAwHhcNMjExMDI4 -->
+<!-- MTkyNzQ2WhcNMjMwMTI2MTkyNzQ2WjCB0jELMAkGA1UEBhMCVVMxEzARBgNVBAgT -->
+<!-- Cldhc2hpbmd0b24xEDAOBgNVBAcTB1JlZG1vbmQxHjAcBgNVBAoTFU1pY3Jvc29m -->
+<!-- dCBDb3Jwb3JhdGlvbjEtMCsGA1UECxMkTWljcm9zb2Z0IElyZWxhbmQgT3BlcmF0 -->
+<!-- aW9ucyBMaW1pdGVkMSYwJAYDVQQLEx1UaGFsZXMgVFNTIEVTTjpEMDgyLTRCRkQt -->
+<!-- RUVCQTElMCMGA1UEAxMcTWljcm9zb2Z0IFRpbWUtU3RhbXAgU2VydmljZTCCAiIw -->
+<!-- DQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBAJlXPv61zxcehZOPgqS67mw6y02t -->
+<!-- 0LgB0VV7svs7MV8JKIJE9Gvl1rgWm8B8qo/EUYmUEL3b2zquTURMTnh4mgrZFLEN -->
+<!-- NhEgHvQs/paATbbHwqvOOrt6LVhwiZapLw60q+5jAasHEWO3H4QBny75aTEqI6AJ -->
+<!-- 5O0Xo/o3CZ2MSHjd+Bd4fScADWN+tKBmAiEu6SzqLFlfm8boPbok2WBP13JcmDRe -->
+<!-- l3c2f8w/+FOacU+DGUJswRrw7PvHA3QP7LWX4/68votF1GDRT4bqnPlCpMJv1zRw -->
+<!-- fgg7BkJfmUtBnG1FLp+FT04RyZupkQMC+cvM6bVhCKHG03kUk5mZ1GtomB9hDgVe -->
+<!-- 3go8dEnW+pC3NcXRUXJA3kBkeCdchcsm7mbFD/MdHTrBBKC0LjobipQy0BIOw+mc -->
+<!-- ZmSZ0vAdN3sJP0qVS6rG+ulNqsheAcA7dbmZIxGe34pyKFIEs+Ae31i2CHjtjgmM -->
+<!-- SBNF78LFaKfT70102bRj885h1O+dxmqysrjOqGv6mk82L6wH1G+ymIb1UCsRlD5C -->
+<!-- /fniojOxtKnpyQha182T8EVqHHAEd9z4TRLrs8ymRSeA3mkwi4P/LitEOEIxUXn+ -->
+<!-- Z+B/tikCBIm2e8yHgV944LKyAm880ptEF90kVZmR//wKqfGMZMHKCNVggYs7/OM/ -->
+<!-- XqsEQXUOB2HDW0DDAgMBAAGjggE2MIIBMjAdBgNVHQ4EFgQU8wbmdGuuSc7ioc6F -->
+<!-- m9uX+zcjcbwwHwYDVR0jBBgwFoAUn6cVXQBeYl2D9OXSZacbUzUZ6XIwXwYDVR0f -->
+<!-- BFgwVjBUoFKgUIZOaHR0cDovL3d3dy5taWNyb3NvZnQuY29tL3BraW9wcy9jcmwv -->
+<!-- TWljcm9zb2Z0JTIwVGltZS1TdGFtcCUyMFBDQSUyMDIwMTAoMSkuY3JsMGwGCCsG -->
+<!-- AQUFBwEBBGAwXjBcBggrBgEFBQcwAoZQaHR0cDovL3d3dy5taWNyb3NvZnQuY29t -->
+<!-- L3BraW9wcy9jZXJ0cy9NaWNyb3NvZnQlMjBUaW1lLVN0YW1wJTIwUENBJTIwMjAx -->
+<!-- MCgxKS5jcnQwDAYDVR0TAQH/BAIwADATBgNVHSUEDDAKBggrBgEFBQcDCDANBgkq -->
+<!-- hkiG9w0BAQsFAAOCAgEAzX/TqPc8oQuZ9YwvIlOzSWN/RYs44cWcCWyWP2LcJ+t6 -->
+<!-- ZTJU0mgaXq2p+eun7kaIxiUr9xMGbPka7jlNk/2UQ8eFR3rCx7XJRPBpjDNakzGm -->
+<!-- Ty/CNha0Zn+TqKeBqnMTXTRAgQpVWZp9CsxXTzKkWuf9EegpoKiYdJrryJopIB7m -->
+<!-- 76IbGrzxMsh0GveBw+PyzSnf2CGgiij8/UgOXwGuKYUOBL89mrmPUlJbiHeTCvR+ -->
+<!-- XI1lcAcQr2AA/tQlvc+xrISZTY6gb1rSjuidAHpn4Os9vIO6nOxv7Qra5R+P8tu8 -->
+<!-- vrLbsFlzb8HbEndZbweDOtwLjJfWKemrv1xZJxsyTxep/7lkeiYUL84eNCC4Hk4S -->
+<!-- 5mIX/M/mg2+K9jgSxtT9gemgk1tmEJLe06VJ8yNHChq9tdwmyrRpPzjiB0rAzsWr -->
+<!-- JnhifhYlCQoldecId2mU/1U/z5C/ROIQwQMBrePRvPIEgjtMfY33Q2VnVhmxC15U -->
+<!-- pgNxD+Hk2Ku0a6JWNOBvHxrRdKc7mbuNwNvc2iPZSK+bpSkc/BKEB1OnLtD8VMNA -->
+<!-- fR/HAJL0MWjLpkWf+Hwm6jW+E3D5D3FjiNuEGJb6W7U/ad9X5WBJZnOcIxqZQJMv -->
+<!-- 55CXE9B2RDV3p8VrT77eIHKKqaXiTwN0v9Q+eyi9+uu3qSK9MldvdBNqLWWwFvAw -->
+<!-- ggdxMIIFWaADAgECAhMzAAAAFcXna54Cm0mZAAAAAAAVMA0GCSqGSIb3DQEBCwUA -->
+<!-- MIGIMQswCQYDVQQGEwJVUzETMBEGA1UECBMKV2FzaGluZ3RvbjEQMA4GA1UEBxMH -->
+<!-- UmVkbW9uZDEeMBwGA1UEChMVTWljcm9zb2Z0IENvcnBvcmF0aW9uMTIwMAYDVQQD -->
+<!-- EylNaWNyb3NvZnQgUm9vdCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkgMjAxMDAeFw0y -->
+<!-- MTA5MzAxODIyMjVaFw0zMDA5MzAxODMyMjVaMHwxCzAJBgNVBAYTAlVTMRMwEQYD -->
+<!-- VQQIEwpXYXNoaW5ndG9uMRAwDgYDVQQHEwdSZWRtb25kMR4wHAYDVQQKExVNaWNy -->
+<!-- b3NvZnQgQ29ycG9yYXRpb24xJjAkBgNVBAMTHU1pY3Jvc29mdCBUaW1lLVN0YW1w -->
+<!-- IFBDQSAyMDEwMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA5OGmTOe0 -->
+<!-- ciELeaLL1yR5vQ7VgtP97pwHB9KpbE51yMo1V/YBf2xK4OK9uT4XYDP/XE/HZveV -->
+<!-- U3Fa4n5KWv64NmeFRiMMtY0Tz3cywBAY6GB9alKDRLemjkZrBxTzxXb1hlDcwUTI -->
+<!-- cVxRMTegCjhuje3XD9gmU3w5YQJ6xKr9cmmvHaus9ja+NSZk2pg7uhp7M62AW36M -->
+<!-- EBydUv626GIl3GoPz130/o5Tz9bshVZN7928jaTjkY+yOSxRnOlwaQ3KNi1wjjHI -->
+<!-- NSi947SHJMPgyY9+tVSP3PoFVZhtaDuaRr3tpK56KTesy+uDRedGbsoy1cCGMFxP -->
+<!-- LOJiss254o2I5JasAUq7vnGpF1tnYN74kpEeHT39IM9zfUGaRnXNxF803RKJ1v2l -->
+<!-- IH1+/NmeRd+2ci/bfV+AutuqfjbsNkz2K26oElHovwUDo9Fzpk03dJQcNIIP8BDy -->
+<!-- t0cY7afomXw/TNuvXsLz1dhzPUNOwTM5TI4CvEJoLhDqhFFG4tG9ahhaYQFzymei -->
+<!-- XtcodgLiMxhy16cg8ML6EgrXY28MyTZki1ugpoMhXV8wdJGUlNi5UPkLiWHzNgY1 -->
+<!-- GIRH29wb0f2y1BzFa/ZcUlFdEtsluq9QBXpsxREdcu+N+VLEhReTwDwV2xo3xwgV -->
+<!-- GD94q0W29R6HXtqPnhZyacaue7e3PmriLq0CAwEAAaOCAd0wggHZMBIGCSsGAQQB -->
+<!-- gjcVAQQFAgMBAAEwIwYJKwYBBAGCNxUCBBYEFCqnUv5kxJq+gpE8RjUpzxD/LwTu -->
+<!-- MB0GA1UdDgQWBBSfpxVdAF5iXYP05dJlpxtTNRnpcjBcBgNVHSAEVTBTMFEGDCsG -->
+<!-- AQQBgjdMg30BATBBMD8GCCsGAQUFBwIBFjNodHRwOi8vd3d3Lm1pY3Jvc29mdC5j -->
+<!-- b20vcGtpb3BzL0RvY3MvUmVwb3NpdG9yeS5odG0wEwYDVR0lBAwwCgYIKwYBBQUH -->
+<!-- AwgwGQYJKwYBBAGCNxQCBAweCgBTAHUAYgBDAEEwCwYDVR0PBAQDAgGGMA8GA1Ud -->
+<!-- EwEB/wQFMAMBAf8wHwYDVR0jBBgwFoAU1fZWy4/oolxiaNE9lJBb186aGMQwVgYD -->
+<!-- VR0fBE8wTTBLoEmgR4ZFaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3BraS9jcmwv -->
+<!-- cHJvZHVjdHMvTWljUm9vQ2VyQXV0XzIwMTAtMDYtMjMuY3JsMFoGCCsGAQUFBwEB -->
+<!-- BE4wTDBKBggrBgEFBQcwAoY+aHR0cDovL3d3dy5taWNyb3NvZnQuY29tL3BraS9j -->
+<!-- ZXJ0cy9NaWNSb29DZXJBdXRfMjAxMC0wNi0yMy5jcnQwDQYJKoZIhvcNAQELBQAD -->
+<!-- ggIBAJ1VffwqreEsH2cBMSRb4Z5yS/ypb+pcFLY+TkdkeLEGk5c9MTO1OdfCcTY/ -->
+<!-- 2mRsfNB1OW27DzHkwo/7bNGhlBgi7ulmZzpTTd2YurYeeNg2LpypglYAA7AFvono -->
+<!-- aeC6Ce5732pvvinLbtg/SHUB2RjebYIM9W0jVOR4U3UkV7ndn/OOPcbzaN9l9qRW -->
+<!-- qveVtihVJ9AkvUCgvxm2EhIRXT0n4ECWOKz3+SmJw7wXsFSFQrP8DJ6LGYnn8Atq -->
+<!-- gcKBGUIZUnWKNsIdw2FzLixre24/LAl4FOmRsqlb30mjdAy87JGA0j3mSj5mO0+7 -->
+<!-- hvoyGtmW9I/2kQH2zsZ0/fZMcm8Qq3UwxTSwethQ/gpY3UA8x1RtnWN0SCyxTkct -->
+<!-- wRQEcb9k+SS+c23Kjgm9swFXSVRk2XPXfx5bRAGOWhmRaw2fpCjcZxkoJLo4S5pu -->
+<!-- +yFUa2pFEUep8beuyOiJXk+d0tBMdrVXVAmxaQFEfnyhYWxz/gq77EFmPWn9y8FB -->
+<!-- SX5+k77L+DvktxW/tM4+pTFRhLy/AsGConsXHRWJjXD+57XQKBqJC4822rpM+Zv/ -->
+<!-- Cuk0+CQ1ZyvgDbjmjJnW4SLq8CdCPSWU5nR0W2rRnj7tfqAxM328y+l7vzhwRNGQ -->
+<!-- 8cirOoo6CGJ/2XBjU02N7oJtpQUQwXEGahC0HVUzWLOhcGbyoYIC1zCCAkACAQEw -->
+<!-- ggEAoYHYpIHVMIHSMQswCQYDVQQGEwJVUzETMBEGA1UECBMKV2FzaGluZ3RvbjEQ -->
+<!-- MA4GA1UEBxMHUmVkbW9uZDEeMBwGA1UEChMVTWljcm9zb2Z0IENvcnBvcmF0aW9u -->
+<!-- MS0wKwYDVQQLEyRNaWNyb3NvZnQgSXJlbGFuZCBPcGVyYXRpb25zIExpbWl0ZWQx -->
+<!-- JjAkBgNVBAsTHVRoYWxlcyBUU1MgRVNOOkQwODItNEJGRC1FRUJBMSUwIwYDVQQD -->
+<!-- ExxNaWNyb3NvZnQgVGltZS1TdGFtcCBTZXJ2aWNloiMKAQEwBwYFKw4DAhoDFQA+ -->
+<!-- TS+CBHbnSAcHRqAmldFgW0GaaqCBgzCBgKR+MHwxCzAJBgNVBAYTAlVTMRMwEQYD -->
+<!-- VQQIEwpXYXNoaW5ndG9uMRAwDgYDVQQHEwdSZWRtb25kMR4wHAYDVQQKExVNaWNy -->
+<!-- b3NvZnQgQ29ycG9yYXRpb24xJjAkBgNVBAMTHU1pY3Jvc29mdCBUaW1lLVN0YW1w -->
+<!-- IFBDQSAyMDEwMA0GCSqGSIb3DQEBBQUAAgUA5jlQRDAiGA8yMDIyMDUyNjA5MDMw -->
+<!-- MFoYDzIwMjIwNTI3MDkwMzAwWjB3MD0GCisGAQQBhFkKBAExLzAtMAoCBQDmOVBE -->
+<!-- AgEAMAoCAQACAgHfAgH/MAcCAQACAhFuMAoCBQDmOqHEAgEAMDYGCisGAQQBhFkK -->
+<!-- BAIxKDAmMAwGCisGAQQBhFkKAwKgCjAIAgEAAgMHoSChCjAIAgEAAgMBhqAwDQYJ -->
+<!-- KoZIhvcNAQEFBQADgYEAKSgs2HKtEJN5h2JoIpmLFGNc1k6RCxZgNAGS8RE1tTWd -->
+<!-- QvyfXA42QRjlznkR5A63Sblu7ZxJYnr1PLJVupGf1/pcZqRlyqInMl8KOYCiwygy -->
+<!-- 6mPzHiLj7qmUZK0/y3fBmGWWgIP3kjhtcVBnvEVNwijm4RMVxYowBcSxlzjeqWEx -->
+<!-- ggQNMIIECQIBATCBkzB8MQswCQYDVQQGEwJVUzETMBEGA1UECBMKV2FzaGluZ3Rv -->
+<!-- bjEQMA4GA1UEBxMHUmVkbW9uZDEeMBwGA1UEChMVTWljcm9zb2Z0IENvcnBvcmF0 -->
+<!-- aW9uMSYwJAYDVQQDEx1NaWNyb3NvZnQgVGltZS1TdGFtcCBQQ0EgMjAxMAITMwAA -->
+<!-- AY/zUajrWnLdzAABAAABjzANBglghkgBZQMEAgEFAKCCAUowGgYJKoZIhvcNAQkD -->
+<!-- MQ0GCyqGSIb3DQEJEAEEMC8GCSqGSIb3DQEJBDEiBCCB+bW2QW1SNvq0dABQILDU -->
+<!-- Z/pzIsy1JpfiNxD+F81TbjCB+gYLKoZIhvcNAQkQAi8xgeowgecwgeQwgb0EIJdy -->
+<!-- BU/ixsYLlY4ipttiLZjunRQ1lvJ0obujuoPMhccfMIGYMIGApH4wfDELMAkGA1UE -->
+<!-- BhMCVVMxEzARBgNVBAgTCldhc2hpbmd0b24xEDAOBgNVBAcTB1JlZG1vbmQxHjAc -->
+<!-- BgNVBAoTFU1pY3Jvc29mdCBDb3Jwb3JhdGlvbjEmMCQGA1UEAxMdTWljcm9zb2Z0 -->
+<!-- IFRpbWUtU3RhbXAgUENBIDIwMTACEzMAAAGP81Go61py3cwAAQAAAY8wIgQgqr1z -->
+<!-- 5QO+XwwCS3rdQa5ebWYhffoqj1ipm/T//wDsnTowDQYJKoZIhvcNAQELBQAEggIA -->
+<!-- UYg3FpQee3XN02yQirzFo3vmXWxPhdHedw0bshUBryxJ0jsG4njYCuphaCKpTXmi -->
+<!-- RNHDg41MYrGEHMpAeu22E3gAq2DFv0AWy2H4a2z7/LXXVR9AhY6o0ZF84WYG97jI -->
+<!-- RjZIqqowvjl2YxVBcPW7EeyUN7yG0yRY6FNDMBv8QODf/8nL6OFfA/QCQk3YATCN -->
+<!-- ZGxb9Pzxf3xSoIKI0rjEK5QRrILMrrrHGUhul6mac65Y/0HZkSo4M0ey8CTUyU13 -->
+<!-- BqlgGN3kRpsuC+j2G+HTbepua1kyS1mzOEnRlWfbb5QA7D/JRIdIyQwfLO1CWDkA -->
+<!-- 2WbqwM3c3hx3AwEzL5XpaU9XTvzsJfanRBEsL+6uHKPATLHuxE+VSqxvRPrcdzhj -->
+<!-- j/KDsQJE58rmmny9QowN5Q4XRmaJ2yl/PajerN8NlmzAGAx3uneP+Da5c9FUC0qW -->
+<!-- TK25x8nRw9twEqdXTEAK9T/MCz8ZJ9+EjO0Z1eIY28RMtUW3hIpQ4ZiNT4ACorL3 -->
+<!-- izodjgnjpAV96efHoteYcsiSVh3hIlgFdKXwaT3A2xvyU3IS/l1fkzOYi+XZYKoq -->
+<!-- KQB8h4XBrmkHVgYhsU1xXysJxWbyrr+bFHRScadfF+z9T2K17aZqE85Wn08dS4QF -->
+<!-- zTosj0JOWdJhb5I2FxiUGEm/KjKueT00VKp8vTFBrjk= -->
+<!-- SIG # End signature block -->

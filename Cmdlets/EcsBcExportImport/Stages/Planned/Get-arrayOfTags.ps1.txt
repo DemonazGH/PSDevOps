@@ -1,0 +1,49 @@
+function Get-SOXTagsArray(
+    #[switch]$ShowHeader = $false
+    [Parameter(Mandatory = $true)]
+    [array] $TargetEnvironmentConfig
+    ) 
+{
+    # Write to Verbose message stream to allow the use of -Verbose on cmdlets
+    Write-HostAndLog "Get Changed Objects containing $SOXNumber in the Version List from the Development Database"
+    # Constants
+    # Omit Table Data (by filtering on Type > 0) to avoid getting the same objects twice, both as type TableData (0) and type Table (1)
+    $SqlQuery = "SELECT [Type], [ID], [Name], [Date], [Time], [Version List] FROM [$($SourceEnvironmentConfig.DatabaseName)].[dbo].[Object] WHERE [Type] > 0 AND ([Version List] LIKE '%,$SOXNumber' OR [Version List] LIKE '%, $SOXNumber' OR [Version List] LIKE '$SOXNumber')"
+    
+#     SELECT [SOX_Number]
+#       ,[Status]
+#       ,[SOX_Status]
+#       ,[DevOps_Status]
+#   FROM [DevOps_Automation].[azureagent].[Pending_DeploymentObjects] WHERE [Status] = 400 AND [DevOps_Status] < 500
+    # Get a List of Object Type/ID/Name from DEV to be used to find and export the same objects from PROD to save original objects
+    #$result = Invoke-Sqlcmd -Query $SqlQuery -ServerInstance $DevServer -Encrypt Optional
+    Write-HostAndLog "Nav server $($SourceEnvironmentConfig.DatabaseServerName)"
+    $result = Invoke-Sqlcmd -Query $SqlQuery -ServerInstance $($SourceEnvironmentConfig.DatabaseServerName)
+
+    foreach ($r in $result)
+    {
+        $ObjectType = Type2Text($r[0])
+        $ID = ($r[1])
+        $Name = ($r[2])
+        Write-HostAndLog "Objects to export $Name"
+        $Date = ($r[3])
+        $Time = ($r[4])
+        $VersionList = ($r[5])
+        $NavObject = [PSCustomObject]@{
+            ObjectType  = ($ObjectType)
+            ID          = ($ID)
+            Name        = ($Name)
+            Date        = ($Date)
+            Time        = ($Time)
+            VersionList = ($VersionList)
+        }
+        $NavObject
+        #Write-HostAndLog ($ObjectType + " " + $ID + " " + "$Name" + " " + $VersionList)
+    }
+}
+
+SELECT TOP (1000) [SOX_Number]
+      ,[Status]
+      ,[SOX_Status]
+      ,[DevOps_Status]
+  FROM [DevOps_Automation].[azureagent].[Pending_DeploymentObjects]

@@ -1,0 +1,183 @@
+name: SOX-Version-Control
+trigger: none
+
+stages:
+- stage: InitJsonToStoreStagingvariables
+  jobs:
+  - job: InitJsonToStoreStagingvariables
+    pool:
+      name: $(SOURCEENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Write-CheckLogFile
+        Write-JSONFileForVariables -SOXNumber '$(VERSIONTAG)'
+
+- stage: GetSourceObjectsDataAndPrepareFolders
+  dependsOn: InitJsonToStoreStagingvariables
+  jobs:
+  - job: GetSourceObjectsDataAndPrepareFolders
+    pool:
+      name: $(SOURCEENVTYPE)
+    variables:
+      runtimeOutput: ''
+    steps:
+    - task: PowerShell@2
+      name: SetVarPathStep 
+      displayName: Set Variables File Path
+      inputs:
+        targetType: 'inline'
+        script: |
+          .\Initialize-Environment.ps1
+          $result = Get-SourceObjectsDataAndPrepareFolders -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)'
+          $varsPath2 = $result.ThisRunJSONVariablesPath
+          Write-Host "varsPath  : $varsPath2"
+          $cleaned = $varsPath2 -split '\r?\n' | Where-Object { $_ -match 'VersionControlPipelineValues\.json$' } | Select-Object -First 1
+          Write-Host "cleaned Before Assigning to VariablesFilePath  : $cleaned"
+          Write-Host "##vso[task.setvariable variable=VariablesFilePath;isOutput=true]$cleaned"
+          Write-Host "cleaned After assigning to VariablesFilePath: $cleaned"
+          $anyObjectsToImport = if ($result.AnyObjectsToImport -eq 'true') { '1' } else { '0' }
+          Write-Host "##vso[task.setvariable variable=AnyObjectsToImport;isOutput=true]$anyObjectsToImport"
+          Write-Host "any Object To import * $anyObjectsToImport *"
+- stage: ExportIfAllowedBackupObjectsTarget
+  dependsOn: GetSourceObjectsDataAndPrepareFolders
+  variables:
+    VariablesFilePath: $[ stageDependencies.GetSourceObjectsDataAndPrepareFolders.GetSourceObjectsDataAndPrepareFolders.outputs['SetVarPathStep.VariablesFilePath'] ]
+    AnyObjectsToImport: $[ stageDependencies.GetSourceObjectsDataAndPrepareFolders.GetSourceObjectsDataAndPrepareFolders.outputs['SetVarPathStep.AnyObjectsToImport'] ]
+  jobs:
+  - job: ExportIfAllowedBackupObjectsTarget
+    condition: and(succeeded(), eq(variables['AnyObjectsToImport'], '1'))
+    pool:
+      name: $(TARGETENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Export-IfAllowed-BackupObjectsTarget -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)' -VariablesFilePath '$(VariablesFilePath)'
+
+- stage: ExportObjectsFromSource
+  dependsOn: 
+  - ExportIfAllowedBackupObjectsTarget
+  - GetSourceObjectsDataAndPrepareFolders
+  variables:
+    VariablesFilePath: $[ stageDependencies.GetSourceObjectsDataAndPrepareFolders.GetSourceObjectsDataAndPrepareFolders.outputs['SetVarPathStep.VariablesFilePath'] ]
+    AnyObjectsToImport: $[ stageDependencies.GetSourceObjectsDataAndPrepareFolders.GetSourceObjectsDataAndPrepareFolders.outputs['SetVarPathStep.AnyObjectsToImport'] ]
+  jobs:
+  - job: ExportObjectsFromSource
+    condition: and(succeeded(), eq(variables['AnyObjectsToImport'], '1'))
+    pool:
+      name: $(SOURCEENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Export-ObjectsFromSource -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)' -VariablesFilePath '$(VariablesFilePath)'
+
+- stage: StopServicesRelatedToTarget
+  dependsOn:
+  - ExportObjectsFromSource
+  - GetSourceObjectsDataAndPrepareFolders
+  variables:
+    VariablesFilePath: $[ stageDependencies.GetSourceObjectsDataAndPrepareFolders.GetSourceObjectsDataAndPrepareFolders.outputs['SetVarPathStep.VariablesFilePath'] ]
+    AnyObjectsToImport: $[ stageDependencies.GetSourceObjectsDataAndPrepareFolders.GetSourceObjectsDataAndPrepareFolders.outputs['SetVarPathStep.AnyObjectsToImport'] ]
+  jobs:
+  - job: StopServicesRelatedToTarget
+    condition: and(succeeded(), eq(variables['AnyObjectsToImport'], '1'))
+    pool:
+      name: $(TARGETENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Stop-ServicesRelatedToTarget -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)' -VariablesFilePath '$(VariablesFilePath)'
+
+- stage: ImportObjectsToTarget
+  dependsOn: 
+  - StopServicesRelatedToTarget
+  - GetSourceObjectsDataAndPrepareFolders
+  variables:
+    VariablesFilePath: $[ stageDependencies.GetSourceObjectsDataAndPrepareFolders.GetSourceObjectsDataAndPrepareFolders.outputs['SetVarPathStep.VariablesFilePath'] ]
+    AnyObjectsToImport: $[ stageDependencies.GetSourceObjectsDataAndPrepareFolders.GetSourceObjectsDataAndPrepareFolders.outputs['SetVarPathStep.AnyObjectsToImport'] ]
+  jobs:
+  - job: ImportObjectsToTarget
+    condition: and(succeeded(), eq(variables['AnyObjectsToImport'], '1'))
+    pool:
+      name: $(TARGETENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Import-ObjectsToTarget -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)' -VariablesFilePath '$(VariablesFilePath)'
+- stage: StartServicesRelatedToTarget
+  dependsOn: 
+  - ImportObjectsToTarget
+  - GetSourceObjectsDataAndPrepareFolders
+  variables:
+    VariablesFilePath: $[ stageDependencies.GetSourceObjectsDataAndPrepareFolders.GetSourceObjectsDataAndPrepareFolders.outputs['SetVarPathStep.VariablesFilePath'] ]
+    AnyObjectsToImport: $[ stageDependencies.GetSourceObjectsDataAndPrepareFolders.GetSourceObjectsDataAndPrepareFolders.outputs['SetVarPathStep.AnyObjectsToImport'] ]
+  jobs:
+  - job: StartServicesRelatedToTarget
+    condition: and(succeeded(), eq(variables['AnyObjectsToImport'], '1'))
+    pool:
+      name: $(TARGETENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Start-ServicesRelatedToTarget -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)' -VariablesFilePath '$(VariablesFilePath)'
+- stage: StartSetupCodeunit
+  dependsOn: 
+  - StartServicesRelatedToTarget
+  - GetSourceObjectsDataAndPrepareFolders
+  - ImportObjectsToTarget
+  condition: and(succeeded(), ne(variables.SETUPCUODEUNITID, ''))
+  jobs:
+  - job: StartSetupCodeunit
+    pool:
+      name: $(TARGETENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Start-SetupCodeunit -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)' -SetupCodeunitId '$(SETUPCUODEUNITID)'
+- stage: SendSuccessMessage
+  dependsOn:
+    - InitJsonToStoreStagingvariables
+    - GetSourceObjectsDataAndPrepareFolders
+    - ExportIfAllowedBackupObjectsTarget
+    - ExportObjectsFromSource
+    - StopServicesRelatedToTarget
+    - ImportObjectsToTarget
+    - StartServicesRelatedToTarget
+    - StartSetupCodeunit
+  condition: |
+   and(
+    in(dependencies.StartSetupCodeunit.result, 'Succeeded', 'Skipped'),
+    in(dependencies.InitJsonToStoreStagingvariables.result, 'Succeeded', 'Skipped'),
+    in(dependencies.GetSourceObjectsDataAndPrepareFolders.result, 'Succeeded', 'Skipped'),
+    in(dependencies.ExportIfAllowedBackupObjectsTarget.result, 'Succeeded', 'Skipped'),
+    in(dependencies.ExportObjectsFromSource.result, 'Succeeded', 'Skipped'),
+    in(dependencies.StopServicesRelatedToTarget.result, 'Succeeded', 'Skipped'),
+    in(dependencies.ImportObjectsToTarget.result, 'Succeeded', 'Skipped'),
+    in(dependencies.StartServicesRelatedToTarget.result, 'Succeeded', 'Skipped'),
+    )
+  variables:
+    VariablesFilePath: $[ stageDependencies.GetSourceObjectsDataAndPrepareFolders.GetSourceObjectsDataAndPrepareFolders.outputs['SetVarPathStep.VariablesFilePath'] ]
+    AnyObjectToimport: $[ stageDependencies.GetSourceObjectsDataAndPrepareFolders.outputs['GetSourceObjectsDataAndPrepareFolders.AnyObjectsToImport'] ]
+  jobs:
+  - job: SendSuccessMessage
+    pool:
+      name: $(TARGETENVTYPE)
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Send-SuccessMessage -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)' -VariablesFilePath '$(VariablesFilePath)' -AnyObjectToImport '$(AnyObjectsToImport)'
+# Register-SOXPipelineSuccess
+# - stage: TestServicesOperational
+#   dependsOn: 
+#   - StartServicesRelatedToTarget
+#   - GetSourceObjectsDataAndPrepareFolders
+#   variables:
+#     VariablesFilePath: $[ stageDependencies.GetSourceObjectsDataAndPrepareFolders.GetSourceObjectsDataAndPrepareFolders.outputs['SetVarPathStep.VariablesFilePath'] ]
+#   jobs:
+#   - job: TestServicesOperational
+#     pool:
+#       name: $(TARGETENVTYPE)
+#     steps:
+#     - powershell: |
+#         .\Initialize-Environment.ps1
+#         Test-ServicesOperational -SourceEnvType '$(SOURCEENVTYPE)' -TargetEnvType '$(TARGETENVTYPE)' -VariablesFilePath '$(VariablesFilePath)'

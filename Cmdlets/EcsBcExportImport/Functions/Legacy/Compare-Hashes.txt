@@ -1,0 +1,37 @@
+# Parameters
+param (
+    [string]$FilePath1,
+    [string]$FilePath2,
+    [string]$Algorithm = "MD5"  # Algorithm: MD5, SHA256, etc.
+)
+
+# Function to compute hash
+function Get-FileHashSafe {
+    param ([string]$Path, [string]$Algorithm)
+    if (Test-Path $Path) {
+        return Get-FileHash -Path $Path -Algorithm $Algorithm
+    } else {
+        Write-Host "File not found: $Path"
+        throw "File not found: $Path"
+    }
+}
+
+# Hash computation
+try {
+    $hash1 = Get-FileHashSafe -Path $FilePath1 -Algorithm $Algorithm
+    $hash2 = Get-FileHashSafe -Path $FilePath2 -Algorithm $Algorithm
+
+    # Comparison
+    if ($hash1.Hash -eq $hash2.Hash) {
+        Write-Host "The files have the same hash: $($hash1.Hash)"
+        exit 0
+    } else {
+        Write-Host "The files have different hashes:"
+        Write-Host "File 1 Hash: $($hash1.Hash)"
+        Write-Host "File 2 Hash: $($hash2.Hash)"
+        exit 1
+    }
+} catch {
+    Write-Host "Error: $_"
+    exit 1
+}

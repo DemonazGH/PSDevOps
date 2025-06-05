@@ -1,0 +1,23 @@
+trigger:
+- main  # Replace with your branch name
+
+pool:
+  name: "Default"  # Replace with the name of your self-hosted agent pool
+
+steps:
+- task: PowerShell@2
+  displayName: "Run PowerShell Script to Compare Hashes"
+  inputs:
+    targetType: 'inline'
+    script: |
+      # File paths to compare (update paths as necessary)
+      $FilePath1 = "E:\BC_DevOps\20250103_142001\Objects.txt"
+      $FilePath2 = "E:\BC_DevOps\20250103_144630\Objects.txt"
+
+      # Hash algorithm
+      $Algorithm = "MD5"
+
+      # Run the comparison script
+      .\Compare-Hashes.ps1 -FilePath1 $FilePath1 -FilePath2 $FilePath2 -Algorithm $Algorithm
+  workingDirectory: '$(Build.SourcesDirectory)'  # Change if necessary
+  failOnStderr: true

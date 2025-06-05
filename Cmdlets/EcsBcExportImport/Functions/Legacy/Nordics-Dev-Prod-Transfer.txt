@@ -1,0 +1,606 @@
+# SORUB 14.08.2024:   Added -Encrypt Optional to SQL connection string
+
+# PATHO 20.08.2024:   Removed -Encrypt Optional to SQL connection string to avoid error
+
+#cls
+#region Constants
+
+#$ServerRootFolder = "\\11-filsrv1.eu.corp.arrow.com\share\Navision\Navision Changes\"
+
+# $DevServer = "FRSCBVEDNSQL01T.eu.corp.arrow.com"
+# $DevDB = "NAV_DEV_BC_TEST"
+# $UATServer = "FRSCBVSQLBC001T.eu.corp.arrow.com"
+# $UATDB = "NAV_UAT"
+# $ProdServer = "FRSCBVSQLDYN01P.eu.corp.arrow.com"
+# $ProdDB = "NAV_PROD"
+
+$DevServer = "FRSCBVBCDO001D.eu.corp.arrow.com"
+$DevDB = "NAV_DEV_IMPROVISED_aka_uat_copy"
+#$UATServer = "FRSCBVSQLBC001T.eu.corp.arrow.com"
+#$UATDB = "NAV_UAT"
+$ProdServer = "FRSCBVBCDO001D.eu.corp.arrow.com"
+$ProdDB = "NAV_UAT"
+
+# $databaseServer = "FRSCBVBCDO001D"
+# $devDatabaseName = "NAV_DEV_IMPROVISED_aka_uat_copy"
+# $uatDatabaseName = "NAV_UAT"
+enum ObjType {
+
+    Table = 1
+
+    Report = 3
+
+    Codeunit = 5
+
+    XMLport = 6
+
+    MenuSuite = 7
+
+    Page = 8
+
+    Query = 9
+
+}
+
+#endregion
+
+ 
+
+#region Helper Functions
+
+ 
+
+function Load-NavModule
+{
+
+    # Write to Verbose message stream to allow the use of -Verbose on cmdlets
+
+    Write-Verbose "Load NAV Powershell Module"
+
+ 
+
+    # Import NAV Cmdlets to be able to Export Objects
+
+    $NavModuleOnClient = "C:\Program Files (x86)\Microsoft Dynamics 365 Business Central\140\RoleTailored Client\NavModelTools.ps1"
+
+    $NavModuleOnServer = "C:\Program Files\Microsoft Dynamics 365 Business Central\140\Service\navadmintool.ps1"
+
+ 
+
+    Write-Verbose "Load NAV Module to Export Objects"
+
+ 
+
+    try
+    {
+
+        if (IsServer)
+        {
+
+            Import-Module -name $NavModuleOnServer -Verbose:$false > $null
+
+        }
+
+        else
+        {
+
+            Import-Module -name $NavModuleOnClient -Verbose:$false > $null
+
+        }
+
+    }
+
+    catch
+    {
+
+        throw "Could not load the NAV Module to Export Objects"
+
+    }
+
+}
+
+ 
+
+function Type2Text([Parameter(Mandatory = $true)][int]$Type)
+{
+
+    # Option: TableData,Table,,Report,,Codeunit,XMLport,MenuSuite,Page,Query,System,FieldNumber
+
+    [string]$output = ""
+
+ 
+
+    switch ($Type)
+    {
+
+        #0 { $output = "tabledata" } # 0 is filtered out in the SQL Statement, so no need for this value
+
+        1 { $output = "table" }
+
+        3 { $output = "report" }
+
+        5 { $output = "codeunit" }
+
+        6 { $output = "xmlport" }
+
+        7 { $output = "menusuite" }
+
+        8 { $output = "page" }
+
+        9 { $output = "query" }
+
+    }
+
+ 
+
+    return $output
+
+}
+
+ 
+
+function IsServer
+{
+
+    # For Help, see https://stackoverflow.com/questions/48592120/how-do-i-find-out-from-powershell-if-i-am-on-a-server-or-workstation
+
+ 
+
+    $osInfo = Get-CimInstance -ClassName Win32_OperatingSystem
+
+    switch ($osInfo.ProductType)
+    {
+
+        1 { $false }         # 1 = Work Station / Client
+
+        2 { $true }          # 2 = Domain Controller
+
+        3 { $true }          # 3 = Server
+
+    }
+
+}
+
+ 
+
+#endregion
+
+ 
+
+#region Preparation before New Changes
+
+ 
+
+# Check if there are changes in progress preventing us from starting making new changes in the object type and ID
+
+function Test-NavObjectChangesInProgress([Parameter(Mandatory = $true)][ObjType]$ObjectType, [Parameter(Mandatory = $true)][int]$ObjectID)
+{
+
+    # Example 1:
+
+    # Test-NavObjectChangesInProgress -ObjectType Page -ObjectID 50022
+
+    #
+
+   
+
+    # Example 2:
+
+    # Test-NavObjectChangesInProgress Page 50022
+
+ 
+
+    # Write to Verbose message stream to allow the use of -Verbose on cmdlets
+
+    Write-Verbose "Get Requested Object Version List from from the Development Database for $ObjectType $ObjectID"
+
+    [int]$ObjTypeInt = $ObjectType
+
+    $SqlQueryDEV = "SELECT [Type],[ID],[Name],[Date],[Time],[Version List] FROM [$DevDB].[dbo].[Object] WHERE [Type] = $ObjTypeInt AND [ID] = $ObjectID"
+
+ 
+
+    # Get a List of Object Type/ID/Name from DEV to be used to find and export the same objects from PROD to save original objects
+
+    $resultDEV = Invoke-Sqlcmd -Query $SqlQueryDEV -ServerInstance $DevServer
+
+   
+
+    # Check if the object is found or not. If not, accept to start making changes to the (new) object
+
+    if ($resultDEV -eq $null)
+    {
+
+        Write-Warning "$ObjectType $ObjectID does not exist in the Development database."
+
+        return $false
+
+    }
+
+ 
+
+    $ObjectType = Type2Text($resultDEV[0])
+
+    $ID = ($resultDEV[1])
+
+    $Name = ($resultDEV[2])
+
+    $Date = ($resultDEV[3])
+
+    $Time = ($resultDEV[4])
+
+    [string]$VersionList = ($resultDEV[5])
+
+       
+
+    # Convert Version List into Single SOX Numbers
+
+    $VersionListArray = $VersionList.Split(',')
+
+ 
+
+    # Check only the last SOX Number
+
+    if ($VersionListArray.Count -eq 0)
+    {
+
+        Write-Verbose "Version List for $ObjectType $ObjectID is empty"
+
+        return $false  
+
+    }
+
+ 
+
+    # Get the Last SOX Number in the Version List
+
+    if ({env:VERSIONTAGWITHWILDCARD} -eq $null)
+    {
+        $SOXNumber = $VersionListArray[$VersionListArray.Count - 1].Trim(' ')
+    } 
+    else {
+        $SOXNumber = {env:VERSIONTAGWITHWILDCARD};
+    }
+ 
+
+    #$SOXNumber = "G345" # DEBUG/TEST
+
+    # Check if the SOX is implemented in Production or not
+
+    Write-Verbose "Check if SOX Number $SOXNumber has been implemented in Production. If not, we should not start making new changes to $ObjectType $ObjectID"
+
+    $SqlQueryPROD = "SELECT [No_],[Change Description],[Moved To Production Date] FROM [$ProdDB].[dbo].[SOX Approval] WHERE [Unique Change ID] = '$SOXNumber'"
+
+ 
+
+    # Get a List of Object Type/ID/Name from DEV to be used to find and export the same objects from PROD to save original objects
+
+    $resultPROD = Invoke-Sqlcmd -Query $SqlQueryPROD -ServerInstance $ProdServer
+
+   
+
+    # Check if the object is found or not. If not, accept to start making changes to the (new) object
+
+    if ($resultPROD -eq $null)
+    {
+
+        return $false
+
+    }
+
+   
+
+    [string]$SoxDescription = ($resultPROD[1])
+
+    [DateTime]$MovedToProductionDate = ($resultPROD[2])
+
+    if ($MovedToProductionDate -eq $globalNavZeroDate)
+    {
+
+        Write-Warning "Changes on $ObjectType $ObjectID in progress (SOX No. $SOXNumber $SoxDescription)"
+
+        return $true
+
+    }
+
+    else
+    {
+
+        return $false
+
+    }
+
+}
+
+ 
+
+#endregion
+
+ 
+
+#region Implementation Functions
+
+ 
+
+function New-FoldersForSOX([Parameter(Mandatory = $true)][String] $SOXNumber)
+{
+
+    $SOXFolder = $globalDevServerRootFolder + $SOXNumber
+    #$SOXFolder = $globalServerRootFolder + $SOXNumber
+    # Sub Folders
+
+    $OriginalsFolder = $SOXFolder + "\Originale objekter"
+
+    $ChangesFolder = $SOXFolder + "\Ændrede objekter"
+
+ 
+
+    # Write to Verbose message stream to allow the use of -Verbose on cmdlets
+
+    Write-Verbose "Checking if Folders for original and changed objects exist for SOX Number $SOXNumber."
+
+ 
+
+    # Create Folders
+
+    if (-not (Test-Path -Path $SOXFolder))
+    {
+
+        New-Item -ItemType Directory -Path "$SOXFolder"
+
+        Write-Verbose "$SOXFolder has been created."
+
+    }
+
+    if (-not (Test-Path -Path $OriginalsFolder))
+    {
+
+        New-Item -ItemType Directory -Path "$OriginalsFolder"
+
+        Write-Verbose "$OriginalsFolder has been created."
+
+    }
+
+    if ((Test-Path -Path $ChangesFolder) -eq $false)
+    {
+
+        New-Item -ItemType Directory -Path $ChangesFolder
+
+        Write-Verbose "$ChangesFolder has been created."
+
+    }
+
+ 
+
+    # Output the 2 Folders
+
+    $NavFolders = [PSCustomObject]@{
+
+        OriginalsFolder = ($OriginalsFolder)
+
+        ChangesFolder   = ($ChangesFolder)
+
+    }
+
+ 
+
+    # Return output
+
+    $NavFolders
+
+}
+
+function Get-ChangedObjects([Parameter(Mandatory = $true)][String] $SOXNumber, [switch]$ShowHeader = $false) {
+    # Write to Verbose message stream to allow the use of -Verbose on cmdlets
+    Write-Verbose "Get Changed Objects containing $SOXNumber in the Version List from the Development Database"
+    # Constants
+    # Omit Table Data (by filtering on Type > 0) to avoid getting the same objects twice, both as type TableData (0) and type Table (1)
+    $SqlQuery = "SELECT [Type],[ID],[Name],[Date],[Time],[Version List] FROM [$DevDB].[dbo].[Object] WHERE [Type] > 0 AND [Version List] LIKE '%$SOXNumber%'"
+    # Get a List of Object Type/ID/Name from DEV to be used to find and export the same objects from PROD to save original objects
+    #$result = Invoke-Sqlcmd -Query $SqlQuery -ServerInstance $DevServer -Encrypt Optional
+    $result = Invoke-Sqlcmd -Query $SqlQuery -ServerInstance $DevServer
+
+    if ($ShowHeader) {
+        $heading = "Objects for SOX Number ${SOXNumber}:"
+        write-host $heading
+        write-host
+    }
+
+ 
+
+    foreach ($r in $result)
+    {
+
+        $ObjectType = Type2Text($r[0])
+
+        $ID = ($r[1])
+
+        $Name = ($r[2])
+
+        $Date = ($r[3])
+
+        $Time = ($r[4])
+
+        $VersionList = ($r[5])
+
+       
+
+        $NavObject = [PSCustomObject]@{
+
+            ObjectType  = ($ObjectType)
+
+            ID          = ($ID)
+
+            Name        = ($Name)
+
+            Date        = ($Date)
+
+            Time        = ($Time)
+
+            VersionList = ($VersionList)
+
+        }
+
+ 
+
+        $NavObject
+
+ 
+
+        #Write-Verbose ($ObjectType + " " + $ID + " " + "$Name" + " " + $VersionList)
+
+    }
+
+}
+
+function New-Implementation([Parameter(Mandatory = $true)][String] $SOXNumber, [switch]$Force = $false)
+{
+
+    # Write to Verbose message stream to allow the use of -Verbose on cmdlets
+
+    Write-Verbose "Prepare Implementation of SOX Number $SOXNumber"
+
+    # 1) Create Folders for Objects, if necessary
+
+    $NavFolders = New-FoldersForSOX $SOXNumber -Verbose
+    $OriginalFolder = $NavFolders.OriginalsFolder
+    $ChangesFolder = $NavFolders.ChangesFolder
+
+    # 2) Find changed objects in DEV
+    #   (NB! Take into consideration that it may be a new object, that does not exist, i.e. no object to store in the originals folder !)
+    $ChangedObjects = Get-ChangedObjects -SOXNumber $SOXNumber -Verbose
+
+    # 3) Export original objects from PROD as .txt and .fob as single object files
+    Write-Verbose "Export original objects from PROD as .txt and .fob as single object files"
+
+    $ChangedObjects | ForEach-Object {
+
+        $FobFile = ($_.ObjectType) + ($_.ID) + ".fob"
+
+        $TxtFile = ($_.ObjectType) + ($_.ID) + ".txt"
+
+        $Filter = "Type=" + $_.ObjectType + "; ID=" + $_.ID
+
+                                        
+
+        # FOB File
+
+        if ($Force)
+        {
+
+            Export-NAVApplicationObject -DatabaseName $ProdDB -DatabaseServer $ProdServer `
+                -Path $OriginalFolder\$FobFile -Filter $Filter -Force
+
+        }
+
+        else
+        {
+
+            Export-NAVApplicationObject -DatabaseName $ProdDB -DatabaseServer $ProdServer -Path $OriginalFolder\$FobFile -Filter $Filter
+
+        }
+
+ 
+
+        # TXT File
+
+        if ($Force)
+        {
+
+            Export-NAVApplicationObject -DatabaseName $ProdDB -DatabaseServer $ProdServer -Path $OriginalFolder\$TxtFile -Filter $Filter -Force
+
+        }
+
+        else
+        {
+
+            Export-NAVApplicationObject -DatabaseName $ProdDB -DatabaseServer $ProdServer -Path $OriginalFolder\$TxtFile -Filter $Filter
+
+        }
+
+                                        
+
+    }
+
+ 
+
+    # 4) Export changed objects as one .fob package from DEV
+
+    Write-Verbose "Export changed objects as one .fob package from DEV"
+
+ 
+
+    $FilterString = “Version List=*$SOXNumber*”
+
+    $FobFile = $SOXNumber + "_" + [DateTime]::Today.ToString("ddMMyyyy") + ".fob"
+
+    if ($Force)
+    {
+
+        Export-NAVApplicationObject -DatabaseName $DevDB -DatabaseServer $DevServer -Path $ChangesFolder\$FobFile -Filter $FilterString -Force
+
+    }
+
+    else
+    {
+
+        Export-NAVApplicationObject -DatabaseName $DevDB -DatabaseServer $DevServer -Path $ChangesFolder\$FobFile -Filter $FilterString
+
+    }
+
+ 
+
+    # 5) Export changed objects from DEV as .txt as single object files
+
+    Write-Verbose "Export changed objects from DEV as .txt and as single object files"
+
+ 
+
+    $ChangedObjects | ForEach-Object {
+
+        $DevTxtFile = ($_.ObjectType) + ($_.ID) + ".txt"
+
+        $Filter = "Type=" + $_.ObjectType + "; ID=" + $_.ID
+
+                                        
+
+        # TXT File
+
+        if ($Force)
+        {
+
+            Export-NAVApplicationObject -DatabaseName $DevDB -DatabaseServer $DevServer -Path $ChangesFolder\$DevTxtFile -Filter $Filter -Force
+
+        }
+
+        else
+        {
+
+            Export-NAVApplicationObject -DatabaseName $DevDB -DatabaseServer $DevServer -Path $ChangesFolder\$DevTxtFile -Filter $Filter
+
+        }
+
+                                        
+
+    }
+}
+#endregion
+#region MAIN
+function Nordics-Dev-Prod-Transfer {
+    #[CmdletBinding()]
+    # Load NAV Powershell Modules
+    Load-NavModule
+    #get-command Load-NavModule
+    #get-command Type2Text
+    get-command Test-NavObjectChangesInProgress
+    #get-command New-FoldersForSOX
+    #get-command Get-ChangedObjects
+    get-command New-Implementation
+    #get-command Export-TableDefinitions
+    # Test / Execute Functions
+    # Force overwrite, if the files exist
+    New-Implementation ${env:VERSIONTAGWITHWILDCARD} -Force -Verbose
+    #New-Implementation "G346" -Verbose
+    #Test-NavObjectChangesInProgress($ObjectType,$ObjectID)
+}
+#endregion

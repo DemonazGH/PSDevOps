@@ -1,0 +1,566 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<helpItems schema="maml" xmlns="http://msh">
+  <!-- Cmdlet: New-NAVCrmTable -->
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+    <command:details>
+      <command:name>New-NAVCrmTable</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>NAVCrmTable</command:noun>
+      <maml:description>
+        <maml:para>Creates Microsoft Dynamics NAV table objects that are based on Microsoft Dynamics CRM entities. The table objects are saved as .txt files.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Use this cmdlet when integrating Dynamics NAV with Dynamics CRM. This cmdlet creates one or more table objects in Dynamics NAV that correspond to entities in Dynamics CRM. The created tables are eventually used to map fields in Dynamics CRM with fields in business data tables of Dynamics NAV. Each table object is saved as a .txt file on your computer or network and can be imported into a Dynamics NAV database. The tables have the following characteristics:</maml:para>
+      <maml:para>- The TableType property is set to CRM.</maml:para>
+      <maml:para>- Contains field definitions for all fields in a Dynamics CRM entity that have a data type that is supported by Dynamics NAV. References to other Dynamics CRM entities will only be included if the entity is included in the command line.</maml:para>
+      <maml:para>Only external tables that are based on by actual Dynamics CRM entities are supported. In Dynamics CRM, the entities must support one or more of the following actions:</maml:para>
+      <maml:para>Create, Update, Delete, Retrieve, RetrieveMultiple, Associate (one-to-many relationship only), Disassociate (one-to-many relationship only), Execute (only for setting state)</maml:para>
+    </maml:description>
+    <command:syntax>
+      <!-- Parameter set: NormalParameters -->
+      <command:syntaxItem>
+        <maml:name>New-NAVCrmTable</maml:name>
+        <!-- Parameter: CRMServer -->
+        <command:parameter required="true" globbing="false" pipelineInput="false" position="1">
+          <maml:name>CRMServer</maml:name>
+          <maml:description>
+            <maml:para>Specifies the URL of the Dynamics CRM server to connect to. The Dynamics CRM server provides access to the entity that you want to create as a table in Dynamics NAV. The URL specifies the URI scheme, such as HTTPS or HTTP, and the fully qualified domain name (FQDN) that identifies the Dynamics CRM organization and the computer where the Dynamics CRM server is installed. For connecting to Dynamics CRM Online, the format is typically scheme://organizationname.domainname, such as https://myorganization.crm.dynamics.com, where https is the scheme, myorganization is the organization and crm.dynamics.com is the domain.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">Uri</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Uri</maml:name>
+            <maml:uri />
+          </dev:type>
+        </command:parameter>
+        <!-- Parameter: Credential -->
+        <command:parameter required="true" globbing="false" pipelineInput="false" position="2">
+          <maml:name>Credential</maml:name>
+          <maml:description>
+            <maml:para>Specifies a user name and password for accessing Microsoft Dynamics CRM.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">PSCredential</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Management.Automation.PSCredential</maml:name>
+            <maml:uri />
+          </dev:type>
+        </command:parameter>
+        <!-- Parameter: EntityLogicalName -->
+        <command:parameter required="true" globbing="false" pipelineInput="false" position="3">
+          <maml:name>EntityLogicalName</maml:name>
+          <maml:description>
+            <maml:para>Specifies the logical names of the Dynamics CRM entities for which to create a Dynamics NAV table. This parameter is a comma-separated list. So when you are creating tables for multiple entities, separate each entity logical name with a comma. Each entity logical name must have a corresponding value in the ObjectID parameter based on its position is the list.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">string[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+        </command:parameter>
+        <!-- Parameter: ObjectId -->
+        <command:parameter required="true" globbing="false" pipelineInput="false" position="4">
+          <maml:name>ObjectId</maml:name>
+          <maml:description>
+            <maml:para>Specifies the IDs of the table objects to be created. This parameter is a comma-separated list. So when you are creating multiple table objects, separate each ID with a comma. Each ID must have a corresponding value in the EntityLogicalName parameter, and optionally in the Name parameter, based on its position is the list.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">int[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Int32[]</maml:name>
+            <maml:uri />
+          </dev:type>
+        </command:parameter>
+        <!-- Parameter: AuthenticationType -->
+        <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+          <maml:name>AuthenticationType</maml:name>
+          <maml:description>
+            <maml:para>Specifies the authentication type to connect to Dynamics CRM instance.</maml:para>
+            <maml:para>AD and IFD (AD FS enabled) are permitted for Dynamics 365 (CRM) on-premises instances only.</maml:para>
+            <maml:para>OAuth is permitted for Dynamics 365 (CRM) online and on-premises instances.</maml:para>
+            <maml:para>Office365 is permitted for Dynamics 365 (CRM) online instances only.</maml:para>
+            <maml:para>The AuthenticationType parameter is optional. For a list of valid values, see https://aka.ms/dynamicscrmauthenticationtypeenumeration. The default value is Office365, which is the required authentication type for CRM Online.</maml:para>
+            <maml:para>Possible values: AD, IFD, Office365, OAuth</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">CrmAuthentication</command:parameterValue>
+          <dev:type>
+            <maml:name>Microsoft.Dynamics.Nav.Model.Tools.Crm.CrmAuthentication</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>Office365</dev:defaultValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">AD</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">IFD</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Office365</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">OAuth</command:parameterValue>
+          </command:parameterValueGroup>
+        </command:parameter>
+        <!-- Parameter: ClientId -->
+        <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+          <maml:name>ClientId</maml:name>
+          <maml:description>
+            <maml:para>Specifies the Client ID (or Application ID) that was assigned to the Dynamics NAV application when it was registered in Microsoft Azure Active Directory or Active Directory Federation Services (AD FS). This parameter is only applicable when the -AuthenticationType parameter is set to OAuth.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+            <maml:uri />
+          </dev:type>
+        </command:parameter>
+        <!-- Parameter: DeltaPath -->
+        <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+          <maml:name>DeltaPath</maml:name>
+          <maml:description>
+            <maml:para>Specifies the path for the existing NAV CRM objects, to maintain the existing ID's on the current fields. If object with similar ID is found, we will try to field name match the id's. If no match new ID's will be created for the fields.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+            <maml:uri />
+          </dev:type>
+        </command:parameter>
+        <!-- Parameter: Domain -->
+        <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+          <maml:name>Domain</maml:name>
+          <maml:description>
+            <maml:para>Specifies the domain that will verify user credentials.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+            <maml:uri />
+          </dev:type>
+        </command:parameter>
+        <!-- Parameter: Force -->
+        <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+          <maml:name>Force</maml:name>
+          <maml:description>
+            <maml:para>Specifies that existing files of the same name in the OutputPath folder are to be overwritten. Forces the command to run without asking for user confirmation.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <!-- Parameter: HomeRealmUri -->
+        <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+          <maml:name>HomeRealmUri</maml:name>
+          <maml:description>
+            <maml:para>Specifies the Home Realm Uri. This parameter is only applicable when the -AuthenticationType parameter is set to OAuth.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+            <maml:uri />
+          </dev:type>
+        </command:parameter>
+        <!-- Parameter: Localized -->
+        <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+          <maml:name>Localized</maml:name>
+          <maml:description>
+            <maml:para>Specifies that localized strings from the CRM entity shoudl be included in the generated ML strings for captions and options. Default is to include ENU strings only..</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <!-- Parameter: Name -->
+        <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>Specifies the names of the new tables to be created. This parameter is a comma-separated list. So when creating multiple tables, separate each table name by a comma. Each individual name must have a corresponding item in the ObjectID and the EntityLogicalName parameters, based on its position in the list.</maml:para>
+            <maml:para>The Name parameter is optional, but if you use it, you must specify the names of all new tables, not just one. If you do not specify names, then the tables get the entity logical names as specified by the EntityLogicalName parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">string[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+        </command:parameter>
+        <!-- Parameter: OutputPath -->
+        <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+          <maml:name>OutputPath</maml:name>
+          <maml:description>
+            <maml:para>Specifies the folder path to where the generated .txt files for tables will be saved, such as "c:\CRMObjects". If the folder path does not already exist, it will be created.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+            <maml:uri />
+          </dev:type>
+        </command:parameter>
+        <!-- Parameter: RedirectUri -->
+        <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+          <maml:name>RedirectUri</maml:name>
+          <maml:description>
+            <maml:para>Specifies the Redirect URI that was assigned to the Dynamics NAV application when it was registered in Microsoft Azure Active Directory or Active Directory Federation Services (AD FS). This parameter is only applicable when the -AuthenticationType parameter is set to OAuth.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+            <maml:uri />
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+      <!-- Parameter set: PassThroughConnectionString -->
+      <command:syntaxItem>
+        <maml:name>New-NAVCrmTable</maml:name>
+        <!-- Parameter: EntityLogicalName -->
+        <command:parameter required="true" globbing="false" pipelineInput="false" position="3">
+          <maml:name>EntityLogicalName</maml:name>
+          <maml:description>
+            <maml:para>Specifies the logical names of the Dynamics CRM entities for which to create a Dynamics NAV table. This parameter is a comma-separated list. So when you are creating tables for multiple entities, separate each entity logical name with a comma. Each entity logical name must have a corresponding value in the ObjectID parameter based on its position is the list.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">string[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+        </command:parameter>
+        <!-- Parameter: ObjectId -->
+        <command:parameter required="true" globbing="false" pipelineInput="false" position="4">
+          <maml:name>ObjectId</maml:name>
+          <maml:description>
+            <maml:para>Specifies the IDs of the table objects to be created. This parameter is a comma-separated list. So when you are creating multiple table objects, separate each ID with a comma. Each ID must have a corresponding value in the EntityLogicalName parameter, and optionally in the Name parameter, based on its position is the list.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">int[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Int32[]</maml:name>
+            <maml:uri />
+          </dev:type>
+        </command:parameter>
+        <!-- Parameter: ConnectionString -->
+        <command:parameter required="true" globbing="false" pipelineInput="false" position="named">
+          <maml:name>ConnectionString</maml:name>
+          <maml:description>
+            <maml:para>Specifies a passthrough connection string that will be used to connect to the Dynamics CRM instance.</maml:para>
+            <maml:para>For information about how to create a valid connection string, see https://go.microsoft.com/fwlink/?linkid=848464.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+            <maml:uri />
+          </dev:type>
+        </command:parameter>
+        <!-- Parameter: Force -->
+        <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+          <maml:name>Force</maml:name>
+          <maml:description>
+            <maml:para>Specifies that existing files of the same name in the OutputPath folder are to be overwritten. Forces the command to run without asking for user confirmation.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <!-- Parameter: Localized -->
+        <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+          <maml:name>Localized</maml:name>
+          <maml:description>
+            <maml:para>Specifies that localized strings from the CRM entity shoudl be included in the generated ML strings for captions and options. Default is to include ENU strings only..</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <!-- Parameter: Name -->
+        <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>Specifies the names of the new tables to be created. This parameter is a comma-separated list. So when creating multiple tables, separate each table name by a comma. Each individual name must have a corresponding item in the ObjectID and the EntityLogicalName parameters, based on its position in the list.</maml:para>
+            <maml:para>The Name parameter is optional, but if you use it, you must specify the names of all new tables, not just one. If you do not specify names, then the tables get the entity logical names as specified by the EntityLogicalName parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">string[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+        </command:parameter>
+        <!-- Parameter: OutputPath -->
+        <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+          <maml:name>OutputPath</maml:name>
+          <maml:description>
+            <maml:para>Specifies the folder path to where the generated .txt files for tables will be saved, such as "c:\CRMObjects". If the folder path does not already exist, it will be created.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+            <maml:uri />
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <!-- Parameter: CRMServer -->
+      <command:parameter required="true" globbing="false" pipelineInput="false" position="1">
+        <maml:name>CRMServer</maml:name>
+        <maml:description>
+          <maml:para>Specifies the URL of the Dynamics CRM server to connect to. The Dynamics CRM server provides access to the entity that you want to create as a table in Dynamics NAV. The URL specifies the URI scheme, such as HTTPS or HTTP, and the fully qualified domain name (FQDN) that identifies the Dynamics CRM organization and the computer where the Dynamics CRM server is installed. For connecting to Dynamics CRM Online, the format is typically scheme://organizationname.domainname, such as https://myorganization.crm.dynamics.com, where https is the scheme, myorganization is the organization and crm.dynamics.com is the domain.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">Uri</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Uri</maml:name>
+          <maml:uri />
+        </dev:type>
+      </command:parameter>
+      <!-- Parameter: Credential -->
+      <command:parameter required="true" globbing="false" pipelineInput="false" position="2">
+        <maml:name>Credential</maml:name>
+        <maml:description>
+          <maml:para>Specifies a user name and password for accessing Microsoft Dynamics CRM.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">PSCredential</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSCredential</maml:name>
+          <maml:uri />
+        </dev:type>
+      </command:parameter>
+      <!-- Parameter: EntityLogicalName -->
+      <command:parameter required="true" globbing="false" pipelineInput="false" position="3">
+        <maml:name>EntityLogicalName</maml:name>
+        <maml:description>
+          <maml:para>Specifies the logical names of the Dynamics CRM entities for which to create a Dynamics NAV table. This parameter is a comma-separated list. So when you are creating tables for multiple entities, separate each entity logical name with a comma. Each entity logical name must have a corresponding value in the ObjectID parameter based on its position is the list.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+      </command:parameter>
+      <!-- Parameter: ObjectId -->
+      <command:parameter required="true" globbing="false" pipelineInput="false" position="4">
+        <maml:name>ObjectId</maml:name>
+        <maml:description>
+          <maml:para>Specifies the IDs of the table objects to be created. This parameter is a comma-separated list. So when you are creating multiple table objects, separate each ID with a comma. Each ID must have a corresponding value in the EntityLogicalName parameter, and optionally in the Name parameter, based on its position is the list.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">int[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Int32[]</maml:name>
+          <maml:uri />
+        </dev:type>
+      </command:parameter>
+      <!-- Parameter: AuthenticationType -->
+      <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+        <maml:name>AuthenticationType</maml:name>
+        <maml:description>
+          <maml:para>Specifies the authentication type to connect to Dynamics CRM instance.</maml:para>
+          <maml:para>AD and IFD (AD FS enabled) are permitted for Dynamics 365 (CRM) on-premises instances only.</maml:para>
+          <maml:para>OAuth is permitted for Dynamics 365 (CRM) online and on-premises instances.</maml:para>
+          <maml:para>Office365 is permitted for Dynamics 365 (CRM) online instances only.</maml:para>
+          <maml:para>The AuthenticationType parameter is optional. For a list of valid values, see https://aka.ms/dynamicscrmauthenticationtypeenumeration. The default value is Office365, which is the required authentication type for CRM Online.</maml:para>
+          <maml:para>Possible values: AD, IFD, Office365, OAuth</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">CrmAuthentication</command:parameterValue>
+        <dev:type>
+          <maml:name>Microsoft.Dynamics.Nav.Model.Tools.Crm.CrmAuthentication</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>Office365</dev:defaultValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">AD</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">IFD</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Office365</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">OAuth</command:parameterValue>
+        </command:parameterValueGroup>
+      </command:parameter>
+      <!-- Parameter: Name -->
+      <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+        <maml:name>Name</maml:name>
+        <maml:description>
+          <maml:para>Specifies the names of the new tables to be created. This parameter is a comma-separated list. So when creating multiple tables, separate each table name by a comma. Each individual name must have a corresponding item in the ObjectID and the EntityLogicalName parameters, based on its position in the list.</maml:para>
+          <maml:para>The Name parameter is optional, but if you use it, you must specify the names of all new tables, not just one. If you do not specify names, then the tables get the entity logical names as specified by the EntityLogicalName parameter.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+      </command:parameter>
+      <!-- Parameter: RedirectUri -->
+      <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+        <maml:name>RedirectUri</maml:name>
+        <maml:description>
+          <maml:para>Specifies the Redirect URI that was assigned to the Dynamics NAV application when it was registered in Microsoft Azure Active Directory or Active Directory Federation Services (AD FS). This parameter is only applicable when the -AuthenticationType parameter is set to OAuth.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+          <maml:uri />
+        </dev:type>
+      </command:parameter>
+      <!-- Parameter: Domain -->
+      <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+        <maml:name>Domain</maml:name>
+        <maml:description>
+          <maml:para>Specifies the domain that will verify user credentials.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+          <maml:uri />
+        </dev:type>
+      </command:parameter>
+      <!-- Parameter: HomeRealmUri -->
+      <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+        <maml:name>HomeRealmUri</maml:name>
+        <maml:description>
+          <maml:para>Specifies the Home Realm Uri. This parameter is only applicable when the -AuthenticationType parameter is set to OAuth.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+          <maml:uri />
+        </dev:type>
+      </command:parameter>
+      <!-- Parameter: ClientId -->
+      <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+        <maml:name>ClientId</maml:name>
+        <maml:description>
+          <maml:para>Specifies the Client ID (or Application ID) that was assigned to the Dynamics NAV application when it was registered in Microsoft Azure Active Directory or Active Directory Federation Services (AD FS). This parameter is only applicable when the -AuthenticationType parameter is set to OAuth.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+          <maml:uri />
+        </dev:type>
+      </command:parameter>
+      <!-- Parameter: DeltaPath -->
+      <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+        <maml:name>DeltaPath</maml:name>
+        <maml:description>
+          <maml:para>Specifies the path for the existing NAV CRM objects, to maintain the existing ID's on the current fields. If object with similar ID is found, we will try to field name match the id's. If no match new ID's will be created for the fields.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+          <maml:uri />
+        </dev:type>
+      </command:parameter>
+      <!-- Parameter: OutputPath -->
+      <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+        <maml:name>OutputPath</maml:name>
+        <maml:description>
+          <maml:para>Specifies the folder path to where the generated .txt files for tables will be saved, such as "c:\CRMObjects". If the folder path does not already exist, it will be created.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+          <maml:uri />
+        </dev:type>
+      </command:parameter>
+      <!-- Parameter: Force -->
+      <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+        <maml:name>Force</maml:name>
+        <maml:description>
+          <maml:para>Specifies that existing files of the same name in the OutputPath folder are to be overwritten. Forces the command to run without asking for user confirmation.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <!-- Parameter: Localized -->
+      <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+        <maml:name>Localized</maml:name>
+        <maml:description>
+          <maml:para>Specifies that localized strings from the CRM entity shoudl be included in the generated ML strings for captions and options. Default is to include ENU strings only..</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <!-- Parameter: ConnectionString -->
+      <command:parameter required="true" globbing="false" pipelineInput="false" position="named">
+        <maml:name>ConnectionString</maml:name>
+        <maml:description>
+          <maml:para>Specifies a passthrough connection string that will be used to connect to the Dynamics CRM instance.</maml:para>
+          <maml:para>For information about how to create a valid connection string, see https://go.microsoft.com/fwlink/?linkid=848464.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+          <maml:uri />
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues />
+    <command:examples>
+      <command:example>
+        <maml:title>----------  EXAMPLE 1  ----------</maml:title>
+        <dev:code>New-NavCrmTable -CRMServer https://myserver.crm.dynamics.com -Credential (Get-Credential -UserName user@myserver.onmicrosoft.com -Message
+"Enter Password") -EntityLogicalName account -Name "CRM Account" -ObjectId 50500 -OutputPath c:\CrmObjects
+
+   FileName    : c:\CrmObjects\TAB50500.TXT
+   ObjectType  : Table
+   Id          : 50500
+   VersionList :
+   Date        :
+   Time        :
+   Modified    : False</dev:code>
+        <dev:remarks>
+          <maml:para>This example creates a single Dynamics NAV table object based on the account entity in Dynamics CRM. The created table has the ID 50500 and name CRM Account.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>----------  EXAMPLE 2  ----------</maml:title>
+        <dev:code>New-NavCrmTable -CRMServer https://myserver.crm.dynamics.com -Credential (Get-Credential -UserName user@myserver.onmicrosoft.com -Message
+"Enter Password") -Entity account,contact -Name "CRM Account","CRM Contact" -ObjectId 50500,50501 -OutputPath c:\CrmObjects
+
+  FileName    : C:\CrmObjects\TAB50500.TXT
+  ObjectType  : Table
+  Id          : 50500
+  VersionList :
+  Date        :
+  Time        :
+  Modified    : False
+  FileName    : C:\CrmObjects\TAB50501.TXT
+  ObjectType  : Table
+  Id          : 50501
+  VersionList :
+  Date        :
+  Time        :
+  Modified    : False</dev:code>
+        <dev:remarks>
+          <maml:para>This example creates two Dynamics NAV table objects based on the account and contact entities in Dynamics CRM.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>----------  EXAMPLE 3  ----------</maml:title>
+        <dev:code>New-NavCrmTable -CRMServer https://myserver.local.com/myOrg -Credential (Get-Credential -UserName myserver\UserName -Message
+"Enter Password") -AuthenticationType=AD -Entity account,contact -Name "CRM Account","CRM Contact" -ObjectId 50500,50501 -OutputPath c:\CrmObjects</dev:code>
+        <dev:remarks>
+          <maml:para>This example creates two Dynamics NAV table objects based on the account and contact entities in an on-premise Dynamics CRM installation that uses Azure AD Authentication.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>----------  EXAMPLE 4  ----------</maml:title>
+        <dev:code>New-NavCrmTable -CRMServer . -Credential (Get-Credential -UserName "." -Password ".") 
+-ConnectionString "Url=http://myserver.net/org;UserName=myServer\MyUser;Password=myPassword;AuthType=AD" -Entity account,contact 
+-Name "CRM Account","CRM Contact" -ObjectId 50500,50501 -OutputPath c:\CrmObjects</dev:code>
+        <dev:remarks>
+          <maml:para>This example creates two Dynamics NAV table objects based on the account and contact entities in Dynamics CRM using a specified custom connection string.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <maml:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri>https://go.microsoft.com/fwlink/?linkid=524402</maml:uri>
+      </maml:navigationLink>
+    </maml:relatedLinks>
+  </command:command>
+</helpItems>

@@ -1,0 +1,14 @@
+name: AddUserToCitrix_$(AgentPoolName)
+
+pool:
+ name: $(AgentPoolName)
+
+stages:
+- stage: AddUserToCitrix
+  jobs:
+  - job: AddUserToCitrix
+    timeoutInMinutes: 30
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Add-EcsUsrUserToCitrix -envShortName_arg '$(AgentPoolName)' -userDomain_arg '$(UserDomain)' -userName_arg '$(UserID)'

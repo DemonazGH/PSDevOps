@@ -1,0 +1,15 @@
+name: AddUserToBC_$(AgentPoolName)
+trigger: none
+
+pool:
+ name: $(AgentPoolName)
+
+stages:
+- stage: AddUserToBC
+  jobs:
+  - job: AddUserToBC
+    timeoutInMinutes: 30
+    steps:
+    - powershell: |
+        .\Initialize-Environment.ps1
+        Add-EcsUsrUserToBC -userID_arg '$(UserID)' -userDomain_arg '$(UserDomain)' -permissionSetID_arg '$(PermissionSetID)' -envShortName_arg '$(EnvShortName)' -companyName_arg '$(CompanyName)'
