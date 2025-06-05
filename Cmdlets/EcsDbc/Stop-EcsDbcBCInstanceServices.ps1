@@ -34,29 +34,38 @@ function Stop-EcsDbcBCInstanceServices {
           Throw "ERROR: Unable to get services on '$serverName': $_"
         }
 
-        # Normalize for comparisonю Extract just the service instance names from the discovered objects
+        # Normalize for comparison Extract just the service instance names from the discovered objects
         $actualInstances = $actualFullNames | ForEach-Object  { $_.Service }
         $strapiInstances = $srv.services
 
         # Fail‐fast drift detection. Abort if the set of services differs from what Strapi reports
         $missingInServer = $strapiInstances | Where-Object { $_ -notin $actualInstances }
         $extraOnServer   = $actualInstances   | Where-Object { $_ -notin $strapiInstances }
+        
         if ($missingInServer.Count -or $extraOnServer.Count) {
-            Write-Error "Configuration drift detected on '$serverName'!"
-
+            Write-Host "Configuration drift detected on '$serverName'!"
+            
+            $errorSections = @()
             if ($missingInServer.Count) {
-                $errorMsgIn = "In STRAPI but not on server:`n"
-                $errorMsgIn += $($missingInServer -join ",`n ")
-                Write-Host $errorMsgIn
+                $errorSections += "`n"
+                $msgIn  = "In STRAPI but not on server:`n"
+                $msgIn += ($missingInServer | ForEach-Object { "  - $_" }) -join "`n"
+                Write-Host $msgIn
                 Write-Host "----------------------------------"
-            }
-            if ($extraOnServer.Count) {
-                $errorMsgOut += "On server but not in STRAPI:`n"
-                $errorMsgOut += $($extraOnServer -join ",`n ")
-                Write-Host $errorMsgOut
+                $errorSections += $msgIn
             }
 
-            Throw "Pipeline aborted - reconcile STRAPI vs. actual services on '$serverName' and re-run. Error message:" + "`n  " +  $errorMsgIn + "`n  " + $errorMsgOut
+            if ($extraOnServer.Count) {
+                $errorSections += "`n"
+                $msgOut  = "On server but not in STRAPI:`n"
+                $msgOut += ($extraOnServer | ForEach-Object { "  - $_" }) -join "`n"
+                Write-Host $msgOut
+                $errorSections += $msgOut
+            }
+
+            $throwMsg  = "Pipeline aborted - reconcile STRAPI vs. actual services on '$serverName' and re-run."
+            $throwMsg += $errorSections -join "`n"
+            Throw $throwMsg
         }
 
         # STRAPI config matches the real configuration on the server
