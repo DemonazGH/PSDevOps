@@ -43,29 +43,23 @@ function Stop-EcsDbcBCInstanceServices {
         $extraOnServer   = $actualInstances   | Where-Object { $_ -notin $strapiInstances }
         
         if ($missingInServer.Count -or $extraOnServer.Count) {
-            Write-Host "Configuration drift detected on '$serverName'!"
-            
-            $errorSections = @()
+            Write-Error "Configuration drift detected on '$serverName'!"
+
             if ($missingInServer.Count) {
-                $errorSections += "`n"
-                $msgIn  = "In STRAPI but not on server:`n"
-                $msgIn += ($missingInServer | ForEach-Object { "  - $_" }) -join "`n"
-                Write-Host $msgIn
+                $errorMsgIn = "In STRAPI but not on server:`n"
+                $errorMsgIn += $($missingInServer -join ",`n ")
+                Write-Host $errorMsgIn
                 Write-Host "----------------------------------"
                 $errorSections += $msgIn
             }
 
             if ($extraOnServer.Count) {
-                $errorSections += "`n"
-                $msgOut  = "On server but not in STRAPI:`n"
-                $msgOut += ($extraOnServer | ForEach-Object { "  - $_" }) -join "`n"
-                Write-Host $msgOut
-                $errorSections += $msgOut
+                $errorMsgOut += "On server but not in STRAPI:`n"
+                $errorMsgOut += $($extraOnServer -join ",`n ")
+                Write-Host $errorMsgOut
             }
 
-            $throwMsg  = "Pipeline aborted - reconcile STRAPI vs. actual services on '$serverName' and re-run."
-            $throwMsg += $errorSections -join "`n"
-            Throw $throwMsg
+            Throw "Pipeline aborted - reconcile STRAPI vs. actual services on '$serverName' and re-run. Error message:" + "`n  " +  $errorMsgIn + "`n  " + $errorMsgOut
         }
 
         # STRAPI config matches the real configuration on the server
