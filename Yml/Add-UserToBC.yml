@@ -1,8 +1,12 @@
 name: AddUserToBC_$(AgentPoolName)
 trigger: none
 
+variables:
+- name: AgentPoolName
+  value: $(EnvShortName)
+
 pool:
- name: $(AgentPoolName)
+  name: $(AgentPoolName)
 
 stages:
 - stage: AddUserToBC
